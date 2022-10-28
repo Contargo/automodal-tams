@@ -93,9 +93,9 @@ class TamsJobState:
         except ValidationError:
             return "invalid"
         if (
-                self.__state
-                and self.__state.jobStatus == CCSJobStatus.DONE
-                and self.has_job()
+            self.__state
+            and self.__state.jobStatus == CCSJobStatus.DONE
+            and self.has_job()
         ):
             if self.__running_job:
                 if self.storage.container_moved(self.__running_job):

@@ -27,11 +27,11 @@ class Web:
     name: str = "PSKran"
 
     def __init__(
-            self,
-            state: TamsJobState,
-            storage: TamsStorage,
-            metric: Metric,
-            verbose: bool = False,
+        self,
+        state: TamsJobState,
+        storage: TamsStorage,
+        metric: Metric,
+        verbose: bool = False,
     ):
         self.metric = metric
         self.state = state
@@ -65,16 +65,24 @@ class Web:
         self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
         #        self.app.add_url_rule("/cancel-job", "cancel_job_post", self.cancel_job_post, methods=["post"])
         self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
-        self.app.add_url_rule("/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"])
+        self.app.add_url_rule(
+            "/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"]
+        )
         self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
         self.app.add_url_rule(
             "/job_cancel", "job_cancel", self.job_cancel, methods=["post"]
         )
         self.app.add_url_rule(
-            "/job_clear_running", "job_clear_running", self.job_clear_running, methods=["post"]
+            "/job_clear_running",
+            "job_clear_running",
+            self.job_clear_running,
+            methods=["post"],
         )
         self.app.add_url_rule(
-            "/job_clear_pending", "job_clear_pending", self.job_clear_pending, methods=["post"]
+            "/job_clear_pending",
+            "job_clear_pending",
+            self.job_clear_pending,
+            methods=["post"],
         )
         self.app.add_url_rule("/state", "state_get", self.state_get, methods=["get"])
         self.app.add_url_rule("/metric", "metric_get", self.metric_get, methods=["get"])
@@ -97,11 +105,12 @@ class Web:
         )
 
         # ajax calls
-        self.app.add_url_rule("/ajax_stack_table", "ajax_stack_table", self.ajax_stack_table, methods=["get"])
-
-
-
-
+        self.app.add_url_rule(
+            "/ajax_stack_table",
+            "ajax_stack_table",
+            self.ajax_stack_table,
+            methods=["get"],
+        )
 
     def rest(self) -> None:
         self.app.run(host="0.0.0.0", port=7000)
@@ -127,7 +136,6 @@ class Web:
         if self.mode.name == "manual":
             return render_template("ajax/stacks_manual.html", active_link="/")
         return render_template("ajax/stacks.html", active_link="/")
-
 
     def stacks_setpos_post(self, stack_name: str) -> Any:
         data = json.loads(request.get_data())
