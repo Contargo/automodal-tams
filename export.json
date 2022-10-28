@@ -1,0 +1,141 @@
+{
+  "container": [
+    {
+      "unitId": "b9186e6c-23de-4df0-863c-f6ca97c839db",
+      "height": 0,
+      "width": 0,
+      "length": 0,
+      "weight": 0,
+      "type": "0000",
+      "number": "Heller Rot",
+      "piggyBack": false
+    },
+    {
+      "unitId": "b9186e6c-23de-4df0-863c-f6ca97c4345b",
+      "height": 0,
+      "width": 0,
+      "length": 0,
+      "weight": 0,
+      "type": "0000",
+      "number": "Blau",
+      "piggyBack": false
+    },
+    {
+      "unitId": "b9186e6c-23de-4df0-863c-f6ca97c4348b",
+      "height": 0,
+      "width": 0,
+      "length": 0,
+      "weight": 0,
+      "type": "0000",
+      "number": "Gelb",
+      "piggyBack": false
+    },
+    {
+      "unitId": "b9186e6c-23de-4df0-863c-f6ca96c4345b",
+      "height": 0,
+      "width": 0,
+      "length": 0,
+      "weight": 0,
+      "type": "0000",
+      "number": "Dunkler Rot",
+      "piggyBack": false
+    }
+  ],
+  "stacks": [
+    {
+      "name": "A1",
+      "coordinates": {
+        "x": 7264,
+        "y": 40000,
+        "z": 2462
+      },
+      "container": [
+        {
+          "unitId": "b9186e6c-23de-4df0-863c-f6ca97c4345b",
+          "height": 0,
+          "width": 0,
+          "length": 0,
+          "weight": 0,
+          "type": "0000",
+          "number": "Blau",
+          "piggyBack": false
+        }
+      ],
+      "height": 3
+    },
+    {
+      "name": "A2",
+      "coordinates": {
+        "x": 15370,
+        "y": 40000,
+        "z": 2534
+      },
+      "container": [
+        {
+          "unitId": "b9186e6c-23de-4df0-863c-f6ca96c4345b",
+          "height": 0,
+          "width": 0,
+          "length": 0,
+          "weight": 0,
+          "type": "0000",
+          "number": "Dunkler Rot",
+          "piggyBack": false
+        }
+      ],
+      "height": 3
+    },
+    {
+      "name": "A3",
+      "coordinates": {
+        "x": 23265,
+        "y": 40000,
+        "z": 2467
+      },
+      "container": [
+        {
+          "unitId": "b9186e6c-23de-4df0-863c-f6ca97c839db",
+          "height": 0,
+          "width": 0,
+          "length": 0,
+          "weight": 0,
+          "type": "0000",
+          "number": "Heller Rot",
+          "piggyBack": false
+        }
+      ],
+      "height": 3
+    },
+    {
+      "name": "B1",
+      "coordinates": {
+        "x": 11325,
+        "y": 40502,
+        "z": 2467
+      },
+      "container": [],
+      "height": 3
+    },
+    {
+      "name": "LKW",
+      "coordinates": {
+        "x": 1000,
+        "y": 1000,
+        "z": 1000
+      },
+      "container": [
+        {
+          "unitId": "b9186e6c-23de-4df0-863c-f6ca97c4348b",
+          "height": 0,
+          "width": 0,
+          "length": 0,
+          "weight": 0,
+          "type": "0000",
+          "number": "Gelb",
+          "piggyBack": false
+        }
+      ],
+      "height": 1
+    }
+  ],
+  "crane": ""
+}
