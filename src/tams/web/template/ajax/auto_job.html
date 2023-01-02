@@ -1,0 +1,36 @@
+<div class="card mb-3 text-white bg-secondary">
+    <div class="card-header">move container</div>
+    <div style="height: 100%; 
+    font-family: 'Lucida Console', 'Courier New', monospace;
+    background: #2c3034;
+    padding: 0px;
+    " class="card-body " id="stacks">
+        <table class="table table-dark table-bordered" style="margin: 0px">
+            <tr>
+                <td>
+                    <select id="move-container-from" style="width: 100%; height: 100%">
+                            {% for s in stacks %}
+                                    {% if s.container|length > 0 %}
+                                            <option>{{ s.name  }}</option>
+                                    {% endif %}
+                            {% endfor %}
+                    </select>
+                </td>
+                <td> >> TO >> </td>
+                <td>
+                    <select id="move-container-to" style="width: 100%; height: 100%">
+                            {% for s in stacks %}
+                                    {% if s.container|length < 2 %}
+                                            <option>{{ s.name }}</option>
+                                    {% endif %}
+                            {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button id="move-container-button" type="button" class="btn btn-secondary" style=" width: 100%; margin-top: 5px">MOVE
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

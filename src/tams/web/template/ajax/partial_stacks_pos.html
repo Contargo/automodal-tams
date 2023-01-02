@@ -1,0 +1,18 @@
+{% for s in stacks %}
+    {% if s.name == stack %}
+        <button 
+                type="button"
+                data-stack-name="{{ stack }}"
+                class="set-pos btn btn-small btn-danger" 
+                style="font-size: 12px; width: 100%">
+            
+            set pos
+        </button>
+        <br>
+        <br>
+        <button 
+                class="set-pos btn btn-small btn-secondary disabled"  
+                style="font-size: 12px; width: 100%; padding-left:0px;  padding-right:0px">{{ s.coordinates.x }} {{ s.coordinates.y }} {{ s.coordinates.z }}</div>
+        </button>
+    {% endif %}
+{% endfor %}

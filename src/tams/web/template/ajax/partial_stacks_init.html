@@ -1,0 +1,44 @@
+<select class="stacks_init layer2 form-select form-select-sm" data-stack-name="{{ stack }}" data-layer="2">
+        <option>-</option>
+        {% for item in container %} 
+                {% set ns = namespace(selected=false) %}
+                {% for s in stacks %}
+                        {% if s.name == stack %}
+                                {% if s.container|length > 1 %}
+                                        {% if s.container[1].number == item.number %}
+                                                selected
+                                                {% set ns.selected = true %}
+                                        {% endif %}
+                                {% endif %}
+                        {% endif %}
+                {% endfor %}
+                {{ ns.selected }}
+                {% if ns.selected == true %}
+                        <option selected >{{ item.number }}</option>
+                {% else %}
+                        <option>{{ item.number }}</option>
+                {% endif %}
+        {% endfor %}
+</select><br>
+<select class="stacks_init layer1 form-select form-select-sm" data-stack-name="{{ stack }}" data-layer="1">
+        <option>-</option>
+        {% for item in container %} 
+                {% set ns = namespace(selected=false) %}
+                {% for s in stacks %}
+                        {% if s.name == stack %}
+                                {% if s.container|length > 0 %}
+                                        {% if s.container[0].number == item.number %}
+                                                selected
+                                                {% set ns.selected = true %}
+                                        {% endif %}
+                                {% endif %}
+                        {% endif %}
+                {% endfor %}
+                {{ ns.selected }}
+                {% if ns.selected == true %}
+                        <option selected >{{ item.number }}</option>
+                {% else %}
+                        <option>{{ item.number }}</option>
+                {% endif %}
+        {% endfor %}
+</select>

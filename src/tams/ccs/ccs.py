@@ -38,7 +38,7 @@ class CCS:
         self.shutdown_event = Event()
         self.app = Flask("tams ccs", root_path=getcwd())
         self.add_endpoints()
-        # self.get_job() # deaktivated because polo don't implemented the get
+        #self.get_job() # deaktivated because polo don't implemented the get
         self.worker_rest_thread = Thread(
             target=self.worker_rest,
             args=(),
@@ -136,7 +136,7 @@ class CCS:
         if data == "{}":
             if self.verbose:
                 print(f"[CCS][send_job] {self.state=}")
-            # self.state.reject_new_job()
+            #self.state.reject_new_job()
             self.messages.add_error_msg(title="CCS send_job", text="job is empty")
             return
         print(data)
@@ -171,7 +171,7 @@ class CCS:
         except ConnectionError:
             return
         try:
-            self.state.set_new_job(str(job_json.text))
+            self.state.add_new_job(str(job_json.text))
             self.state.ack_new_job()
         except ValidationError:
             return

@@ -64,26 +64,30 @@ class TamsJobState:
             return str(self.__state.to_json())  # type: ignore[attr-defined]
         return "{}"
 
-    def set_new_job(self, job_json: str) -> str:
+    def __parse_new_job(self, new_job: str) -> CCSJob | None:
         try:
             # pylint: disable=no-member
-            job: CCSJob = CCSJob.from_json(job_json)  # type: ignore[attr-defined]
-            if self.storage.crane is not None and job.type == CCSJobType.PICK:
-                return "invalid"
-            if self.storage.crane is None and job.type == CCSJobType.DROP:
-                return "invalid"
-            self.__pending_jobs.append(job)
-            if self.verbose:
-                print(f"[STATE][set_new_job] {job}")
-            else:
-                print(
-                    f"[STATE][set_new_job] type={job.type}, x/y/z={job.target.x}/{job.target.y}/{job.target.z}, unit.number={job.unit.number}, "
-                )
-        except ValidationError:
-            return "invalid"
+            job: CCSJob = CCSJob.from_json(new_job)  # type: ignore[attr-defined]
+            return job
+        except ValidationError as error:
+            print(error)
+            return None
         except JSONDecodeError as error:
             print(error)
-            return "invalid"
+            return None
+
+    def add_new_job(self, new_job: str | CCSJob) -> str:
+        if type(new_job) == "str":
+            new_job = self.__parse_new_job(new_job)
+            if new_job is None:
+                return "invalid"
+        self.__pending_jobs.append(new_job)
+        if self.verbose:
+            print(f"[STATE][set_new_job] {new_job}")
+        else:
+            print(
+                f"[STATE][set_new_job] type={new_job.type}, x/y/z={new_job.target.x}/{new_job.target.y}/{new_job.target.z}, unit.number={job.unit.number}, "
+            )
         return "OK"
 
     def set_new_state(self, state_json: str) -> str:
@@ -93,9 +97,9 @@ class TamsJobState:
         except ValidationError:
             return "invalid"
         if (
-            self.__state
-            and self.__state.jobStatus == CCSJobStatus.DONE
-            and self.has_job()
+                self.__state
+                and self.__state.jobStatus == CCSJobStatus.DONE
+                and self.has_job()
         ):
             if self.__running_job:
                 if self.storage.container_moved(self.__running_job):

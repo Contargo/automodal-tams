@@ -28,22 +28,25 @@
                 </div>
                 <div class="card-body">
                         <div class="form-check form-switch">
-                            <input class="form-check-input not-clickable" type="checkbox">
+                            <input id="checkbox_modus_pos" class="form-check-input checkbox_modus" type="checkbox">
+                            <label class="form-check-label">SET POS</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input id="checkbox_modus_init" class="form-check-input checkbox_modus" type="checkbox">
                             <label class="form-check-label">INIT</label>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input not-clickable" type="checkbox">
-                            <label class="form-check-label">MANUAL</label>
+                            <input id="checkbox_modus_drop" class="form-check-input checkbox_modus" type="checkbox">
+                            <label class="form-check-label">DROP</label>
                         </div>                        
                         <div class="form-check form-switch">
-                            <input class="form-check-input not-clickable checked" type="checkbox">
+                            <input id="checkbox_modus_auto" class="form-check-input checkbox_modus checked" type="checkbox">
                             <label class="form-check-label">AUTO</label>
                         </div>
                 </div>
             </div> 
-            <div class="card mb-3 text-white bg-secondary">
-                {% include "partial_job.html" %}
-            </div> 
+            <div id="job_formular"></div>
+
             <div class="card mb-3 text-white bg-secondary">
                 {% include "partial_crane_status.html" %}
             </div>
@@ -52,9 +55,11 @@
         <div class="position-relative col-10">
             <!-- End Navbar -->
             <div class="row ">
-                <div class="col-8">
+                <div class="col-9">
                     {% include "partial_stacks.html" %}
-                    {% include "partial_job_list.html" %}
+                    <div id="auto_job"></div>
+                    <div id="job_list"></div>
+                    
                     <div class="card mb-3 text-white bg-secondary" style="height: 370px">
                         <div class="card-header">Console</div>
                         <div style="height: 100%; 
@@ -66,48 +71,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
-                    <div class="card mb-3 text-white bg-secondary ">
-                        <div class="card-header">Running Job</div>
-                        <div class="card-body" id="running-job">
-                            no running job
-                        </div>
-                        <div class="card-body">
-                            <button id="cancel-job" type="button" class="btn btn-danger">force job done</button>
-                        </div>
-                        
-                    </div>
-                    <div class="card mb-3 text-white bg-secondary ">
-                        <div class="card-header">Crane Details</div>
-                        <div class="card-body" id="crane-details">
-                            PS Kran <br>
-                            Wörth am Rhein <br><br>
-                            <span id="crane-details-container">Container: </span><br><br>
-                            Features:
-                            <ul id="feature-list">
-                                <li>alala</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card mb-3 text-white bg-secondary ">
-                        <div class="card-header">Crane Position</div>
-                        <div class="card-body">
-                            <table class="table table-dark">
-                                <tbody>
-                                <tr>
-                                    <td>Crane (x)</td>
-                                    <td>Katz (y)</td>
-                                    <td>Spreader (z)</td>
-                                </tr>
-                                <tr>
-                                    <td id="crane_position"></td>
-                                    <td id="katz_position"></td>
-                                    <td id="spreader_position"></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="col-3">
+                    <div id="job_status"></div>
+                    <div id="crane_status"></div>
+                    
+
                 </div>
                 {% block content %}{% endblock %}
                 {% include "partial_footer.html" %}

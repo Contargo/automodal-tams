@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -32,14 +34,22 @@ class CCSEvent:
 @dataclass
 class CCSUnit:
     unitId: str = field(default_factory=guid)  # pylint: disable=invalid-name
-    height: int = 0
-    width: int = 0
-    length: int = 0
-    weight: int = 0
-    type: str = "0000"
-    number: str = "00000000000"
+    height: int = 2591 # mm
+    width: int = 2438 # mm
+    length: int = 6058 # mm
+    weight: int = 2000 # kg ?
+    type: str = ""
+    number: str = ""
     piggyBack: bool = False  # pylint: disable=invalid-name
-
+    will_be_moved: bool = False 
+    will_be_dropped: bool = False 
+    
+    @classmethod
+    def empty(cls) -> CCSUnit:
+        return cls(unitId = "")
+    
+    def is_empty(self):
+        return self.number == ""
 
 @dataclass_json
 @dataclass

@@ -1,0 +1,50 @@
+    {% set ns = namespace(found=false, container="") %}
+    {% for item in container %}
+            {% for s in stacks %}
+                    {% if s.name == stack %}
+                        {% if s.container|length > 1 %}
+                                    {% if s.container[0].number == item.number %}
+                                        {% set ns.container= item.number%}
+                                    {% endif %}
+                        {% endif %}
+                    {% endif %}
+            {% endfor %}
+    {% endfor %}
+    {% if ns.container != "" %}
+        <button data-stack-name="{{ stack }}"
+                type="button" 
+                class="btn btn-small btn-primary disabled" 
+                style="font-size: 12px; width: 100%;">
+        {{ ns.container }}
+        </button>
+    {% else %}        
+        <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
+        &ensp;
+        </button>
+    {% endif %}
+<br><br>
+    {% set ns = namespace(found=false, container="", stack="") %}
+    {% for item in container %}
+            {% for s in stacks %}
+                    {% if s.name == stack %}
+                        {% if s.container|length > 0 %}
+                                    {% if s.container[0].number == item.number %}
+                                        {% set ns.container= item.number%}
+                                    {% endif %}
+                        {% endif %}
+                    {% endif %}
+            {% endfor %}
+    {% endfor %}
+    {% if ns.container != "" %}
+        <button 
+                data-stack-name="{{ stack }}"
+                type="button" 
+                class="btn btn-small btn-primary disabled" 
+                style="font-size: 12px; width: 100%;">
+        {{ ns.container }}
+        </button>
+    {% else %}        
+        <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
+        &ensp;
+        </button>
+    {% endif %}
