@@ -2,16 +2,11 @@
 name = "tams"
 version = "0.0.1"
 description = ""
-authors = [
-    "Moritz Sauter <sauter@synyx.de>",
-    "David Bauer <bauer@synyx.de>",
-]
+authors = ["Moritz Sauter <sauter@synyx.de>", "David Bauer <bauer@synyx.de>"]
 license = "MIT"
 readme = "README.md"
 
-packages = [
-    { include = "tams", from = "src" }
-]
+packages = [{ include = "tams", from = "src" }]
 
 [tool.poetry.scripts]
 tams = "tams.main:run"
@@ -48,10 +43,15 @@ jobs = 0
 
 [tool.pylint.basic]
 good-names = [
-    "i", # iterator
-    "_", "__", "___", # unneeded variable
-    "T", # generic type
-    "id",
+  "i",   # iterator
+  "_",
+  "__",
+  "___", # unneeded variable
+  "T",   # generic type
+  "id",
+  "x",
+  'y',
+  'z',
 ]
 
 [tool.pylint.typecheck]
@@ -59,22 +59,27 @@ good-names = [
 generated-members = ["prctl.set_name"]
 # necessary, at least for systems without cuda
 # otherwise extension-pkg-whitelist should do the trick
-ignored-modules = [
-    "cv2.fisheye"
+ignored-modules = ["cv2.fisheye"]
+
+[tool.ruff]
+
+ignore = [
+  "E501", # line length
 ]
 
 [tool.pylint.message_control]
 disable = [
-    "missing-module-docstring", "missing-class-docstring", "missing-function-docstring",
-    "no-member", # sadly dataclass_json annotations don't work with pylint
-    "line-too-long",
-    "too-few-public-methods",
-    "duplicate-code",
-    "too-many-ancestors",
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "no-member",                  # sadly dataclass_json annotations don't work with pylint
+  "line-too-long",
+  "too-few-public-methods",
+  "duplicate-code",
+  "too-many-ancestors",
+  "trailing-newlines",
 ]
-enable = [
-    "useless-suppression"
-]
+enable = ["useless-suppression"]
 
 [tool.pylint.design]
 max-attributes = 10
@@ -105,18 +110,15 @@ disallow_incomplete_defs = true
 disallow_any_generics = true
 disallow_untyped_calls = true
 
-enable_error_code = [
-    "ignore-without-code",
-]
+enable_error_code = ["ignore-without-code"]
 
-# ignores that library has no typing information with it
 [[tool.mypy.overrides]]
 module = [
-    "prctl",
-    "paho.*",
-    "snap7.*",
-    "strenum",
-    "dataclasses_json",
-    "flask_cors"
+  "prctl",
+  "paho.*",
+  "snap7.*",
+  "strenum",
+  "dataclasses_json",
+  "flask_cors",
 ]
 ignore_missing_imports = true
