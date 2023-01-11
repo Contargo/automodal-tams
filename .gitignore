@@ -1,0 +1,35 @@
+.idea/*
+venv
+.venv
+*.pyc
+
+# ignore logfiles
+**/*.log
+
+# poetry cache used by the CI
+poetry_cache
+
+# coverage data collected by pytest
+coverage.xml
+.coverage
+htmlcov
+
+# pylint report for sonar
+pylint.report
+# xunit reports for sonar
+xunit-reports/
+
+.mypy_cache
+.pytest_cache
+
+# docker stuff
+.docker
+
+# build folder
+dist/
+
+# test structure for file-testing
+!tests/unit/config/test_*/**/*
+
+# typing stubs for pyright lsp
+typings
