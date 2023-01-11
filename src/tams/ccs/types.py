@@ -34,22 +34,23 @@ class CCSEvent:
 @dataclass
 class CCSUnit:
     unitId: str = field(default_factory=guid)  # pylint: disable=invalid-name
-    height: int = 2591 # mm
-    width: int = 2438 # mm
-    length: int = 6058 # mm
-    weight: int = 2000 # kg ?
+    height: int = 2591  # mm
+    width: int = 2438  # mm
+    length: int = 6058  # mm
+    weight: int = 2000  # kg ?
     type: str = ""
     number: str = ""
     piggyBack: bool = False  # pylint: disable=invalid-name
-    will_be_moved: bool = False 
-    will_be_dropped: bool = False 
-    
+    will_be_moved: bool = False
+    will_be_dropped: bool = False
+
     @classmethod
     def empty(cls) -> CCSUnit:
-        return cls(unitId = "")
-    
+        return cls(unitId="")
+
     def is_empty(self):
         return self.number == ""
+
 
 @dataclass_json
 @dataclass

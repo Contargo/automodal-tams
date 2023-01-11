@@ -184,7 +184,7 @@ function update_stack_table() {
                 layer = $(this).attr("data-layer");
                 container = $(this).children("option:selected").text().replace(" ","_")
                 url = "stacks/container/" + layer + "/" + stack_name + "/" + container
-                console.log("url: " + url)           
+                console.log("url: " + url)
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -200,12 +200,12 @@ function update_stack_table() {
                         document.dispatchEvent(update_ui_event);
                     }
                 })
-            });            
+            });
             $('#move-container-button').on('click', function () {
                 from = $("#move-container-from").children("option:selected").text()
                 to = $("#move-container-to").children("option:selected").text()
                 console.log(from)
-                console.log(to)               
+                console.log(to)
                 $.ajax({
                     url: "container/generate_move/" + from + "/" + to,
                     type: "POST",
@@ -225,7 +225,7 @@ function update_stack_table() {
         }
 
     });
-    
+
 
 }
 
@@ -344,7 +344,7 @@ function cancel_job() {
 }
 
 $(document).ready(function () {
-    
+
     $.getJSON("/state", function (data) {
         console.log("state", data)
     })
@@ -367,9 +367,9 @@ $(document).ready(function () {
         //get_stacks()
         get_metrics()
     }, 1000);
-    
+
     $(".not-clickable").on("click", false);
-    
+
     checkbox_modus = $(".checkbox_modus")
     checkbox_modus.prop("checked", false)
     $("#checkbox_modus_init").prop("checked", true)
@@ -389,7 +389,7 @@ $(document).ready(function () {
             error: function (data) {
                 console.log(data)
             }
-        
+
         });
     });
 

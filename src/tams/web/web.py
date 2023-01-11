@@ -29,11 +29,11 @@ class Web:
     name: str = "PSKran"
 
     def __init__(
-            self,
-            state: TamsJobState,
-            storage: TamsStorage,
-            metric: Metric,
-            verbose: bool = False,
+        self,
+        state: TamsJobState,
+        storage: TamsStorage,
+        metric: Metric,
+        verbose: bool = False,
     ):
         self.metric = metric
         self.state = state
@@ -67,16 +67,24 @@ class Web:
         self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
         #        self.app.add_url_rule("/cancel-job", "cancel_job_post", self.cancel_job_post, methods=["post"])
         self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
-        self.app.add_url_rule("/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"])
+        self.app.add_url_rule(
+            "/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"]
+        )
         self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
         self.app.add_url_rule(
             "/job_cancel", "job_cancel", self.job_cancel, methods=["post"]
         )
         self.app.add_url_rule(
-            "/job_clear_running", "job_clear_running", self.job_clear_running, methods=["post"]
+            "/job_clear_running",
+            "job_clear_running",
+            self.job_clear_running,
+            methods=["post"],
         )
         self.app.add_url_rule(
-            "/job_clear_pending", "job_clear_pending", self.job_clear_pending, methods=["post"]
+            "/job_clear_pending",
+            "job_clear_pending",
+            self.job_clear_pending,
+            methods=["post"],
         )
         self.app.add_url_rule("/state", "state_get", self.state_get, methods=["get"])
         self.app.add_url_rule("/metric", "metric_get", self.metric_get, methods=["get"])
@@ -88,9 +96,9 @@ class Web:
         )
         self.app.add_url_rule("/stacks", "stacks_get", self.stacks_get, methods=["get"])
         self.app.add_url_rule("/mode", "mode", self.mode_post, methods=["post"])
-        #self.app.add_url_rule(
+        # self.app.add_url_rule(
         #    "/container", "container_get", self.container_get, methods=["get"]
-        #)
+        # )
         self.app.add_url_rule(
             "/stacks/container/<int:layer>/<string:stack_name>/<string:container>",
             "stacks_container",
@@ -118,11 +126,27 @@ class Web:
         )
 
         # ajax calls
-        self.app.add_url_rule("/ajax_job_status", "ajax_job_status", self.ajax_job_status, methods=["get"])
-        self.app.add_url_rule("/ajax_crane_status", "ajax_crane_status", self.ajax_crane_status, methods=["get"])
-        self.app.add_url_rule("/ajax_auto_job", "ajax_auto_job", self.ajax_auto_job, methods=["get"])
-        self.app.add_url_rule("/ajax_stack_table", "ajax_stack_table", self.ajax_stack_table, methods=["get"])
-        self.app.add_url_rule("/ajax_job_list", "ajax_job_list", self.ajax_job_list, methods=["get"])
+        self.app.add_url_rule(
+            "/ajax_job_status", "ajax_job_status", self.ajax_job_status, methods=["get"]
+        )
+        self.app.add_url_rule(
+            "/ajax_crane_status",
+            "ajax_crane_status",
+            self.ajax_crane_status,
+            methods=["get"],
+        )
+        self.app.add_url_rule(
+            "/ajax_auto_job", "ajax_auto_job", self.ajax_auto_job, methods=["get"]
+        )
+        self.app.add_url_rule(
+            "/ajax_stack_table",
+            "ajax_stack_table",
+            self.ajax_stack_table,
+            methods=["get"],
+        )
+        self.app.add_url_rule(
+            "/ajax_job_list", "ajax_job_list", self.ajax_job_list, methods=["get"]
+        )
 
     def rest(self) -> None:
         self.app.run(host="0.0.0.0", port=7000)
@@ -161,15 +185,17 @@ class Web:
         job.target = self.storage.get_stack_by_name(stack_name)
         job.type = CCSJobType.DROP
         self.state.add_new_job(job)
-        
+
         return "OK", 200
 
-    def stacks_container_update(self, layer: int, stack_name: str, container: str) -> Any:
+    def stacks_container_update(
+        self, layer: int, stack_name: str, container: str
+    ) -> Any:
         print(f"[WEB][stacks_container_update] {layer=} {stack_name=} {container=}")
         self.storage.set_container_stack(layer, stack_name, container.replace("_", " "))
         print("asd")
         return "OK", 200
-    
+
     def __add_new_job(self, stack_name: str, job_type: CCSJobType):
         job = CCSJob()
         stack = self.storage.get_stack_by_name(stack_name)
@@ -190,8 +216,8 @@ class Web:
         self.__add_new_job(from_stack, CCSJobType.PICK)
         self.__add_new_job(to_stack, CCSJobType.DROP)
         return "OK", 200
-    
-    #def container_get(self) -> Any:
+
+    # def container_get(self) -> Any:
     #    return self.storage.get_container_as_json()
 
     def job_post(self) -> Any:
@@ -262,17 +288,13 @@ class Web:
         stacks = self.storage.stacks
         container = self.storage.container
         partial = f"ajax/partial_stacks_{self.mode.name}.html"
-        return render_template("ajax/stacks.html",
-                               partial=partial,
-                               container=container,
-                               stacks=stacks)
+        return render_template(
+            "ajax/stacks.html", partial=partial, container=container, stacks=stacks
+        )
 
     def ajax_job_list(self) -> Any:
         pending = self.state.get_pending_jobs_as_json()
         running = self.state.get_job_as_json()
         print(pending)
         print(running)
-        return render_template("ajax/job_list.html",
-                               pending=pending,
-                               running=running
-                               )
+        return render_template("ajax/job_list.html", pending=pending, running=running)

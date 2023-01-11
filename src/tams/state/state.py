@@ -2,7 +2,7 @@ from json import JSONDecodeError
 
 from marshmallow import ValidationError
 
-from tams.ccs.enums import CCSJobStatus, CCSJobType
+from tams.ccs.enums import CCSJobStatus
 from tams.ccs.types import CCSCraneDetails, CCSJob, CCSJobState
 from tams.storage.storage import TamsStorage
 
@@ -21,10 +21,10 @@ class TamsJobState:
         self.__running_job = None
         self.__state = None
 
-    def clear_pending_jobs(self):
+    def clear_pending_jobs(self) -> None:
         self.__pending_jobs = []
 
-    def clear_running_job(self):
+    def clear_running_job(self) -> None:
         self.__running_job = None
 
     def get_pending_jobs(self) -> list[CCSJob]:
@@ -46,7 +46,7 @@ class TamsJobState:
 
     def get_new_job_as_json(self) -> str:
         if self.has_pending_jobs():
-            return str(self.__pending_jobs[0].to_json())  # type: ignore[union-attr]
+            return str(self.__pending_jobs[0].to_json())  # type: ignore[attr-defined]
         return "{}"
 
     def get_pending_jobs_as_json(self) -> str:
@@ -56,7 +56,7 @@ class TamsJobState:
                 json += job.to_json()
                 json += ","
             json += "]"
-            return json  # type: ignore[union-attr]
+            return json
         return "{}"
 
     def get_state_as_json(self) -> str:
@@ -97,9 +97,9 @@ class TamsJobState:
         except ValidationError:
             return "invalid"
         if (
-                self.__state
-                and self.__state.jobStatus == CCSJobStatus.DONE
-                and self.has_job()
+            self.__state
+            and self.__state.jobStatus == CCSJobStatus.DONE
+            and self.has_job()
         ):
             if self.__running_job:
                 if self.storage.container_moved(self.__running_job):

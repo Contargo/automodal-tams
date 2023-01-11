@@ -72,12 +72,12 @@ class TamsStorage:
         return None
 
     def _get_stack_by_coordinated(
-            self, coordinates: CCSCoordinates
+        self, coordinates: CCSCoordinates
     ) -> ContainerStack | None:
         for container in self.stacks:
             if (
-                    container.coordinates.x == coordinates.x
-                    and container.coordinates.y == coordinates.y
+                container.coordinates.x == coordinates.x
+                and container.coordinates.y == coordinates.y
             ):
                 return container
         return None
@@ -85,8 +85,8 @@ class TamsStorage:
     def _switch_container(self, c1: CCSUnit, c2: CCSUnit) -> None:
         cc1 = c1
         cc2 = c2
-        c1_found = None 
-        c2_found = None 
+        c1_found = None
+        c2_found = None
         for stack in self.stacks:
             try:
                 index = stack.container.index(cc1)
@@ -110,7 +110,7 @@ class TamsStorage:
             return
         if c2_found is not None and self.crane == cc2:
             c2_found[0].container[c2_found[1]] = self.crane
-            self.crane = cc2            
+            self.crane = cc2
             print(f"[STORAGE][_switch_container] OK crane and '{c2_found=}'")
             return
         print(f"[STORAGE][_switch_container] FAILED {c1_found=} '{c2_found=}'")
@@ -122,7 +122,9 @@ class TamsStorage:
             try:
                 index = stack.container.index(cold)
                 stack.container[index] = cnew
-                print(f"[STORAGE][_replace_container] OK {index=} '{cnew.number}', '{cold.number}'")
+                print(
+                    f"[STORAGE][_replace_container] OK {index=} '{cnew.number}', '{cold.number}'"
+                )
             except ValueError:
                 pass
 
@@ -133,7 +135,6 @@ class TamsStorage:
                     if self.crane is None:
                         self._replace_container(container)
                         self.crane = container
-        
 
     def _add_container_to_stack(self, container_number: str, stack_name: str) -> str:
         stack = self.get_stack_by_name(stack_name)
@@ -142,9 +143,13 @@ class TamsStorage:
             self._delete_container_from_stacks(container)
             self.crane = None
             stack.container.append(container)
-            print(f"[STORAGE][_add_container_to_stack] OK {container_number=} {stack_name=}")
+            print(
+                f"[STORAGE][_add_container_to_stack] OK {container_number=} {stack_name=}"
+            )
             return "success"
-        print(f"[STORAGE][_add_container_to_stack] failed {container_number=} {stack_name=}")
+        print(
+            f"[STORAGE][_add_container_to_stack] failed {container_number=} {stack_name=}"
+        )
         return "failed"
 
     def _get_stack_by_container(self, container: CCSUnit):
@@ -152,15 +157,16 @@ class TamsStorage:
             for c in stack.container:
                 if c.number == container.number:
                     return stack
-        
 
-    def set_container_stack(self, layer: int, stack_name: str, container_number: str) -> None:
+    def set_container_stack(
+        self, layer: int, stack_name: str, container_number: str
+    ) -> None:
         new_stack = self.get_stack_by_name(stack_name)
         new_container = self.get_container_by_name(container_number)
         if new_stack and new_container is not None:
-            if not new_stack.container[layer-1].is_empty():
+            if not new_stack.container[layer - 1].is_empty():
                 print(f"[STORAGE][set_container_stack] not empty, switch container")
-                old_container = new_stack.container[layer-1]
+                old_container = new_stack.container[layer - 1]
                 self._switch_container(old_container, new_container)
                 return
             else:
@@ -169,7 +175,9 @@ class TamsStorage:
                     if new_stack.container[idx].is_empty():
                         new_stack.container[idx] = new_container
                         return
-        print(f"[STORAGE][set_container_stack] failed {layer=} {stack_name=} {container_number=}")
+        print(
+            f"[STORAGE][set_container_stack] failed {layer=} {stack_name=} {container_number=}"
+        )
 
     def set_stack_pos(self, stack_name: str, coordinates: CCSCoordinates) -> None:
         for stack in self.stacks:
@@ -178,7 +186,7 @@ class TamsStorage:
                 print(f"[STORAGE][set_stack_pos]: {stack_name=} {coordinates=}")
 
     def container_moved(  # pylint: disable=too-many-return-statements
-            self, job: CCSJob
+        self, job: CCSJob
     ) -> bool:
         if job.type == CCSJobType.DROP:
             if self.crane is None:
