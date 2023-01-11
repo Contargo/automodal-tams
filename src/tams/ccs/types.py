@@ -56,9 +56,9 @@ class CCSUnit:
 @dataclass
 class CCSCoordinates:
     # in mm
-    x: int = 1  # pylint: disable=invalid-name
-    y: int = 2  # pylint: disable=invalid-name
-    z: int = 3  # pylint: disable=invalid-name
+    x: int = 1
+    y: int = 2
+    z: int = 3
 
 
 @dataclass_json
