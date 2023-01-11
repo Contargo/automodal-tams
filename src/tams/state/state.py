@@ -77,7 +77,7 @@ class TamsJobState:
             return None
 
     def add_new_job(self, new_job: str | CCSJob) -> str:
-        if type(new_job) == "str":
+        if isinstance(new_job, str):
             new_job = self.__parse_new_job(new_job)
             if new_job is None:
                 return "invalid"

@@ -35,7 +35,7 @@ class TamsStorage:
         path.write_text(json.dumps(json_dict))
 
     @property
-    def container(self):
+    def container(self)-> list[CCSUnit]:
         container_lists = [stack.container for stack in self.stacks]
         container = list(itertools.chain.from_iterable(container_lists))
         container = [x for x in container if not x.is_empty()]

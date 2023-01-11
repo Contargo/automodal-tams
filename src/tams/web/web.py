@@ -196,7 +196,7 @@ class Web:
         print("asd")
         return "OK", 200
 
-    def __add_new_job(self, stack_name: str, job_type: CCSJobType):
+    def __add_new_job(self, stack_name: str, job_type: CCSJobType) -> None:
         job = CCSJob()
         stack = self.storage.get_stack_by_name(stack_name)
         job.target = stack.coordinates

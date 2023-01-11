@@ -48,7 +48,7 @@ class CCSUnit:
     def empty(cls) -> CCSUnit:
         return cls(unitId="")
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return self.number == ""
 
 
