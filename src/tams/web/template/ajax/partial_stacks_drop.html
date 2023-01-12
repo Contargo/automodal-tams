@@ -3,7 +3,7 @@
             {% for s in stacks %}
                     {% if s.name == stack %}
                         {% if s.container|length > 1 %}
-                                    {% if s.container[0].number == item.number %}
+                                    {% if s.container[1].number == item.number %}
                                         {% set ns.container= item.number%}
                                     {% endif %}
                         {% endif %}
@@ -11,14 +11,14 @@
             {% endfor %}
     {% endfor %}
     {% if ns.container != "" %}
-        <button data-stack-name="{{ stack }}" 
-                data-stack-layer="1" 
-                type="button" 
-                class="drop-container btn btn-small btn-primary" 
+        <button data-stack-name="{{ stack }}"
+                data-stack-layer="1"
+                type="button"
+                class="drop-container btn btn-small btn-primary"
                 style="font-size: 12px; width: 100%;">
         {{ ns.container }}
         </button>
-    {% else %}        
+    {% else %}
         <button type="button" class="drop-container btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
         &ensp;
         </button>
@@ -37,15 +37,15 @@
             {% endfor %}
     {% endfor %}
     {% if ns.container != "" %}
-        <button 
+        <button
                 data-stack-name="{{ stack }}"
-                data-stack-layer="0" 
-                type="button" 
-                class="drop-container btn btn-small btn-primary" 
+                data-stack-layer="0"
+                type="button"
+                class="drop-container btn btn-small btn-primary"
                 style="font-size: 12px; width: 100%;">
         {{ ns.container }}
         </button>
-    {% else %}        
+    {% else %}
         <button type="button" class="drop-container btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
         &ensp;
         </button>
