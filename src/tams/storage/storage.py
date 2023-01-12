@@ -140,20 +140,6 @@ class TamsStorage:
             except ValueError:
                 pass
 
-#   def _add_container_to_crane(self, container_number: str) -> None:
-#       for stack in self.stacks:
-#           for container in stack.container:
-#               if container.number == container_number:
-#                   if self.crane is None:
-#                       self._replace_container(container)
-#                       self.crane = container
-
-#   def _get_stack_by_container(self, container: CCSUnit):
-#       for stack in self.stacks:
-#           for c in stack.container:
-#               if c.number == container.number:
-#                   return stack
-
     def set_container_stack(
         self, layer: int, stack_name: str, container_number: str
     ) -> None:
