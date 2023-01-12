@@ -147,18 +147,15 @@ class TamsStorage:
         new_container = self.get_container_by_name(container_number)
         if new_stack and new_container is not None:
             if not new_stack.container[layer - 1].is_empty():
-                print(f"[STORAGE][set_container_stack] not empty, switch container")
+                print(f"[STORAGE][set_container_stack] new slot not empty, switch container")
                 old_container = new_stack.container[layer - 1]
                 self._switch_container(old_container, new_container)
-                self._fix_container_layer()
-                return
             else:
+                print(f"[STORAGE][set_container_stack] new slot is empty, move container")
                 self._replace_container(CCSUnit.empty(), new_container)
-                for idx, _ in enumerate(new_stack.container):
-                    if new_stack.container[idx].is_empty():
-                        new_stack.container[idx] = new_container
-                        self._fix_container_layer()
-                        return
+                new_stack.container[layer - 1] = new_container
+            self._fix_container_layer()
+            return
         print(
             f"[STORAGE][set_container_stack] failed {layer=} {stack_name=} {container_number=}"
         )
