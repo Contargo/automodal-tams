@@ -24,16 +24,6 @@ class TamsStorage:
     crane: Optional[CCSUnit] = None
     stack_height = 2
 
-    def __init__(self) -> None:
-        pass
-
-    def export_json(self, path: Path) -> None:
-        json_dict: dict[str, list[dict[str, Any]] | dict[str, Any] | str] = {
-            "stacks": [asdict(dx) for dx in self.stacks],
-            "crane": "" if self.crane is None else asdict(self.crane),
-        }
-        path.write_text(json.dumps(json_dict))
-
     @property
     def container(self)-> list[CCSUnit]:
         container_lists = [stack.container for stack in self.stacks]
@@ -42,6 +32,15 @@ class TamsStorage:
         if self.crane is not None and not self.crane.is_empty():
             container.append(self.crane)
         return container
+
+
+    def export_json(self, path: Path) -> None:
+        json_dict: dict[str, list[dict[str, Any]] | dict[str, Any] | str] = {
+            "stacks": [asdict(dx) for dx in self.stacks],
+            "crane": "" if self.crane is None else asdict(self.crane),
+        }
+        path.write_text(json.dumps(json_dict))
+
 
     def import_json(self, path: Path) -> None:
         text = path.read_text()
@@ -53,6 +52,7 @@ class TamsStorage:
         self.crane = (
             None if json_data["crane"] == "" else CCSUnit.from_dict(json_data["crane"])  # type: ignore[attr-defined]
         )
+        self._fix_container_layer()
 
     def get_stack_by_name(self, name: str) -> ContainerStack | None:
         for item in self.stacks:
@@ -71,7 +71,7 @@ class TamsStorage:
         print(f"[STORAGE][get_container_by_name] item not found {container_number=}")
         return None
 
-    def _get_stack_by_coordinated(
+    def get_stack_by_coordinated(
         self, coordinates: CCSCoordinates
     ) -> ContainerStack | None:
         for container in self.stacks:
@@ -115,7 +115,18 @@ class TamsStorage:
             return
         print(f"[STORAGE][_switch_container] FAILED {c1_found=} '{c2_found=}'")
 
+    def _fix_container_layer(self) -> None:
+        # fix floating containers in stack
+        for stack in self.stacks:
+            for ix in range(self.stack_height-1):
+                if stack.container[ix].is_empty() and not stack.container[ix + 1].is_empty():
+                    stack.container[ix] = stack.container[ix + 1]
+                    stack.container[ix + 1] = CCSUnit.empty()
+
+
     def _replace_container(self, new: CCSUnit, old: CCSUnit) -> None:
+        # replaces a container in the stack with a new one.
+        # old container will not be backuped!
         cnew = new
         cold = old
         for stack in self.stacks:
@@ -125,38 +136,23 @@ class TamsStorage:
                 print(
                     f"[STORAGE][_replace_container] OK {index=} '{cnew.number}', '{cold.number}'"
                 )
+
             except ValueError:
                 pass
 
-    def _add_container_to_crane(self, container_number: str) -> None:
-        for stack in self.stacks:
-            for container in stack.container:
-                if container.number == container_number:
-                    if self.crane is None:
-                        self._replace_container(container)
-                        self.crane = container
+#   def _add_container_to_crane(self, container_number: str) -> None:
+#       for stack in self.stacks:
+#           for container in stack.container:
+#               if container.number == container_number:
+#                   if self.crane is None:
+#                       self._replace_container(container)
+#                       self.crane = container
 
-    def _add_container_to_stack(self, container_number: str, stack_name: str) -> str:
-        stack = self.get_stack_by_name(stack_name)
-        if stack:
-            container = self.get_container_by_name(container_number)
-            self._delete_container_from_stacks(container)
-            self.crane = None
-            stack.container.append(container)
-            print(
-                f"[STORAGE][_add_container_to_stack] OK {container_number=} {stack_name=}"
-            )
-            return "success"
-        print(
-            f"[STORAGE][_add_container_to_stack] failed {container_number=} {stack_name=}"
-        )
-        return "failed"
-
-    def _get_stack_by_container(self, container: CCSUnit):
-        for stack in self.stacks:
-            for c in stack.container:
-                if c.number == container.number:
-                    return stack
+#   def _get_stack_by_container(self, container: CCSUnit):
+#       for stack in self.stacks:
+#           for c in stack.container:
+#               if c.number == container.number:
+#                   return stack
 
     def set_container_stack(
         self, layer: int, stack_name: str, container_number: str
@@ -168,12 +164,14 @@ class TamsStorage:
                 print(f"[STORAGE][set_container_stack] not empty, switch container")
                 old_container = new_stack.container[layer - 1]
                 self._switch_container(old_container, new_container)
+                self._fix_container_layer()
                 return
             else:
                 self._replace_container(CCSUnit.empty(), new_container)
                 for idx, _ in enumerate(new_stack.container):
                     if new_stack.container[idx].is_empty():
                         new_stack.container[idx] = new_container
+                        self._fix_container_layer()
                         return
         print(
             f"[STORAGE][set_container_stack] failed {layer=} {stack_name=} {container_number=}"
@@ -185,29 +183,40 @@ class TamsStorage:
                 stack.coordinates = coordinates
                 print(f"[STORAGE][set_stack_pos]: {stack_name=} {coordinates=}")
 
-    def container_moved(  # pylint: disable=too-many-return-statements
+
+    def process_job_done(  # pylint: disable=too-many-return-statements
         self, job: CCSJob
     ) -> bool:
+        # Crane has job done. Now we update the stack.
         if job.type == CCSJobType.DROP:
-            if self.crane is None:
+            if self.crane.is_empty():
                 print("[STORAGE][container_moved]: drop but crane has no unit")
                 return False
                 # DARF NICHT SEIN
-            stack = self._get_stack_by_coordinated(job.target)
-            if stack:
-                self._add_container_to_stack(job.unit.number, stack.name)
-                return True
+            unit = self.crane
+            stack = self.get_stack_by_coordinated(job.target)
+            if not stack:
+                return False
+            for ix in range(self.stack_height):
+                if stack.container[ix].is_empty():
+                    stack.container[ix] = unit
+                    return True
             return False
+
         if job.type == CCSJobType.PICK:
-            if self.crane is not None:
+            unit = self.get_container_by_name(job.unit.number)
+            if not self.crane.is_empty():
                 print("[STORAGE][container_moved]: pick but crane has unit")
                 return False
                 # DARF NICHT SEIN
-            self._add_container_to_crane(job.unit.number)
+            self._replace_container(new=CCSUnit.empty(), old=unit)
+            self.crane = unit
             return True
+
         if job.type == CCSJobType.MOVE:
             # kein einfluss auf den storage
             return True
+
         return False
 
     def get_stacks_as_json(self) -> str:

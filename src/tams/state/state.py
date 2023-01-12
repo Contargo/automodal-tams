@@ -102,7 +102,7 @@ class TamsJobState:
             and self.has_job()
         ):
             if self.__running_job:
-                if self.storage.container_moved(self.__running_job):
+                if self.storage.process_job_done(self.__running_job):
                     self.__running_job = None
                     return "DONE"
                 return "error in storage"

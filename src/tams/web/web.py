@@ -164,7 +164,7 @@ class Web:
 
     def mode_post(self) -> Any:
         mode = request.data.decode()
-        print(mode)
+        print(f"[WEB][mode_post] {mode}")
         print(WebState.__members__.keys())
         if mode in WebState.__members__:
             self.mode = WebState(mode)
@@ -193,7 +193,6 @@ class Web:
     ) -> Any:
         print(f"[WEB][stacks_container_update] {layer=} {stack_name=} {container=}")
         self.storage.set_container_stack(layer, stack_name, container.replace("_", " "))
-        print("asd")
         return "OK", 200
 
     def __add_new_job(self, stack_name: str, job_type: CCSJobType) -> None:
@@ -295,6 +294,7 @@ class Web:
     def ajax_job_list(self) -> Any:
         pending = self.state.get_pending_jobs_as_json()
         running = self.state.get_job_as_json()
-        print(pending)
-        print(running)
+
+        print(f"[WEB][ajax_job_list] {pending=}")
+        print(f"[WEB][ajax_job_list] {running=}")
         return render_template("ajax/job_list.html", pending=pending, running=running)
