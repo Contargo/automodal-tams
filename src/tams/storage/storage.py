@@ -25,7 +25,7 @@ class TamsStorage:
     stack_height = 2
 
     @property
-    def container(self)-> list[CCSUnit]:
+    def container(self) -> list[CCSUnit]:
         container_lists = [stack.container for stack in self.stacks]
         container = list(itertools.chain.from_iterable(container_lists))
         container = [x for x in container if not x.is_empty()]
@@ -33,14 +33,12 @@ class TamsStorage:
             container.append(self.crane)
         return container
 
-
     def export_json(self, path: Path) -> None:
         json_dict: dict[str, list[dict[str, Any]] | dict[str, Any] | str] = {
             "stacks": [asdict(dx) for dx in self.stacks],
             "crane": "" if self.crane is None else asdict(self.crane),
         }
         path.write_text(json.dumps(json_dict))
-
 
     def import_json(self, path: Path) -> None:
         text = path.read_text()
@@ -118,11 +116,13 @@ class TamsStorage:
     def _fix_container_layer(self) -> None:
         # fix floating containers in stack
         for stack in self.stacks:
-            for ix in range(self.stack_height-1):
-                if stack.container[ix].is_empty() and not stack.container[ix + 1].is_empty():
+            for ix in range(self.stack_height - 1):
+                if (
+                    stack.container[ix].is_empty()
+                    and not stack.container[ix + 1].is_empty()
+                ):
                     stack.container[ix] = stack.container[ix + 1]
                     stack.container[ix + 1] = CCSUnit.empty()
-
 
     def _replace_container(self, new: CCSUnit, old: CCSUnit) -> None:
         # replaces a container in the stack with a new one.
@@ -147,12 +147,16 @@ class TamsStorage:
         new_container = self.get_container_by_name(container_number)
         if new_stack and new_container is not None:
             if not new_stack.container[layer - 1].is_empty():
-                print(f"[STORAGE][set_container_stack] new slot not empty, switch container")
+                print(
+                    f"[STORAGE][set_container_stack] new slot not empty, switch container"
+                )
                 old_container = new_stack.container[layer - 1]
                 self._switch_container(old_container, new_container)
             else:
-                print(f"[STORAGE][set_container_stack] new slot is empty, move container")
-                self._replace_container(CCSUnit.empty(), new_container)
+                print(
+                    f"[STORAGE][set_container_stack] new slot is empty, move container"
+                )
+                self._replace_container(new=CCSUnit.empty(), old=new_container)
                 new_stack.container[layer - 1] = new_container
             self._fix_container_layer()
             return
@@ -161,11 +165,10 @@ class TamsStorage:
         )
 
     def set_stack_pos(self, stack_name: str, coordinates: CCSCoordinates) -> None:
+        print(f"[STORAGE][set_stack_pos]: {stack_name=} {coordinates=}")
         for stack in self.stacks:
             if stack.name == stack_name:
                 stack.coordinates = coordinates
-                print(f"[STORAGE][set_stack_pos]: {stack_name=} {coordinates=}")
-
 
     def process_job_done(  # pylint: disable=too-many-return-statements
         self, job: CCSJob
