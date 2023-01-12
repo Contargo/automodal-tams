@@ -145,7 +145,7 @@ function update_stack_table() {
                 $.ajax({
                     url: "stacks/setpos/" + stack_name,
                     type: "POST",
-                    data: JSON.stringify(e.data),
+                    data: JSON.stringify(data),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
