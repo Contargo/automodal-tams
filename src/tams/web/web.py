@@ -9,7 +9,7 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 
 from tams.ccs.enums import CCSJobType
-from tams.ccs.types import CCSCoordinates, CCSJob
+from tams.ccs.types import CCSCoordinates, CCSJob, CCSUnit
 from tams.metric.metric import Metric
 from tams.state.state import TamsJobState
 from tams.storage.storage import TamsStorage
@@ -64,13 +64,13 @@ class Web:
 
     def add_endpoints(self) -> None:
         self.app.add_url_rule("/", "frontend", self.frontend, methods=["get"])
-        self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
+        #self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
         #        self.app.add_url_rule("/cancel-job", "cancel_job_post", self.cancel_job_post, methods=["post"])
-        self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
-        self.app.add_url_rule(
-            "/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"]
-        )
-        self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
+        #self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
+        #self.app.add_url_rule(
+        #    "/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"]
+        #)
+        #self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
         self.app.add_url_rule(
             "/job_cancel", "job_cancel", self.job_cancel, methods=["post"]
         )
@@ -119,7 +119,7 @@ class Web:
             methods=["post"],
         )
         self.app.add_url_rule(
-            "/container/generate_move/<string:from_stack>/<string:to_stack>",
+            "/container/generate_move/<string:from_stack_name>/<string:to_stack_name>",
             "container_generate_move",
             self.container_generate_job,
             methods=["post"],
@@ -182,7 +182,7 @@ class Web:
     def stacks_drop_container(self, stack_name: str, layer: int) -> Any:
         print(f"[WEB][stacks_drop_container] {stack_name=} {layer=}")
         job = CCSJob()
-        job.target = self.storage.get_stack_by_name(stack_name)
+        job.target = self.storage.get_stack_by_name(stack_name).coordinates
         job.type = CCSJobType.DROP
         self.state.add_new_job(job)
 
@@ -195,55 +195,58 @@ class Web:
         self.storage.set_container_stack(layer, stack_name, container.replace("_", " "))
         return "OK", 200
 
-    def __add_new_job(self, stack_name: str, job_type: CCSJobType) -> None:
+    def __add_new_job(self, stack_name: str, job_type: CCSJobType, container: CCSUnit) -> None:
         job = CCSJob()
         stack = self.storage.get_stack_by_name(stack_name)
         job.target = stack.coordinates
         if job_type == CCSJobType.DROP:
-            job.target.z = job.target.z + 2591 * len(stack.container)
+            job.target.z = job.target.z + 2591 * stack.count
         if job_type == CCSJobType.PICK:
-            job.target.z = job.target.z + 2591 * (len(stack.container) - 1)
+            job.target.z = job.target.z + 2591 * (stack.count - 1)
         job.type = job_type
+        job.unit = container
         self.state.add_new_job(job)
 
-    def container_generate_job(self, from_stack: str, to_stack: str) -> Any:
-        print(f"[WEB][container_generate_move] {from_stack=} {to_stack=}")
-        if from_stack == to_stack:
+    def container_generate_job(self, from_stack_name: str, to_stack_name: str) -> Any:
+        print(f"[WEB][container_generate_move] {from_stack_name=} {to_stack_name=}")
+        if from_stack_name == to_stack_name:
             self.msgs.add_error_msg("from and to are identical", "invalid")
             return "Invalid input", 405
-        self.msgs.add_msg(f"generate jobs {from_stack=}, {to_stack=}", "OK")
-        self.__add_new_job(from_stack, CCSJobType.PICK)
-        self.__add_new_job(to_stack, CCSJobType.DROP)
+        self.msgs.add_msg(f"generate jobs {from_stack_name=}, {to_stack_name=}", "OK")
+        from_stack = self.storage.get_stack_by_name(from_stack_name)
+        container = from_stack.container[from_stack.count - 1]
+        self.__add_new_job(from_stack_name, CCSJobType.PICK, container)
+        self.__add_new_job(to_stack_name, CCSJobType.DROP, container)
         return "OK", 200
 
     # def container_get(self) -> Any:
     #    return self.storage.get_container_as_json()
 
-    def job_post(self) -> Any:
-        job_json = str(request.json).replace("'", '"')
-        job_json = job_json.replace("False", "false")
-        if self.verbose:
-            print(f"[WEB][job_post] {job_json=}")
-        ret = self.state.add_new_job(job_json)
-        if ret == "invalid":
-            self.msgs.add_error_msg("WEB job_post", "invalid")
-            return "Invalid input", 405
-        if ret == "has job":
-            self.msgs.add_error_msg("WEB job_post", "has job")
-            return "has job", 409
-        if ret == "OK":
-            self.msgs.add_msg("WEB job_post", "ok")
-            return "OK", 200
-        self.msgs.add_error_msg("WEB job_post", "unknown error")
-        return "unknown error", 500
+#    def job_post(self) -> Any:
+#        job_json = str(request.json).replace("'", '"')
+#        job_json = job_json.replace("False", "false")
+#        if self.verbose:
+#            print(f"[WEB][job_post] {job_json=}")
+#        ret = self.state.add_new_job(job_json)
+#        if ret == "invalid":
+#            self.msgs.add_error_msg("WEB job_post", "invalid")
+#            return "Invalid input", 405
+#        if ret == "has job":
+#            self.msgs.add_error_msg("WEB job_post", "has job")
+#            return "has job", 409
+#        if ret == "OK":
+#            self.msgs.add_msg("WEB job_post", "ok")
+#            return "OK", 200
+#        self.msgs.add_error_msg("WEB job_post", "unknown error")
+#        return "unknown error", 500
 
-    def jobs_pending(self) -> Any:
-        return self.state.get_pending_jobs_as_json(), 200
+#    def jobs_pending(self) -> Any:
+#        return self.state.get_pending_jobs_as_json(), 200
 
-    def job_get(self) -> Any:
-        if self.state.has_job():
-            return self.state.get_job_as_json(), 200
-        return {}, 200
+#    def job_get(self) -> Any:
+#        if self.state.has_job():
+#            return self.state.get_job_as_json(), 200
+#        return {}, 200
 
     def job_cancel(self) -> Any:
         self.state.cancel_job = True
@@ -292,9 +295,12 @@ class Web:
         )
 
     def ajax_job_list(self) -> Any:
-        pending = self.state.get_pending_jobs_as_json()
-        running = self.state.get_job_as_json()
-
-        print(f"[WEB][ajax_job_list] {pending=}")
-        print(f"[WEB][ajax_job_list] {running=}")
+        pending = self.state.get_pending_jobs()
+        running = self.state.get_running_job()
+        pen = [x.unit.number for x in pending]
+        print(f"[WEB][ajax_job_list] pending {pen}")
+        if running:
+            print(f"[WEB][ajax_job_list] running {running.unit.number}")
+        else:
+            print(f"[WEB][ajax_job_list] running []")
         return render_template("ajax/job_list.html", pending=pending, running=running)

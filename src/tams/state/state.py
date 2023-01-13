@@ -27,6 +27,8 @@ class TamsJobState:
     def clear_running_job(self) -> None:
         self.__running_job = None
 
+    def get_running_job(self) -> CCSJob:
+        return self.__running_job
     def get_pending_jobs(self) -> list[CCSJob]:
         return self.__pending_jobs
 
@@ -57,7 +59,7 @@ class TamsJobState:
                 json += ","
             json += "]"
             return json
-        return "{}"
+        return "[]"
 
     def get_state_as_json(self) -> str:
         if self.__state is not None:
@@ -86,7 +88,7 @@ class TamsJobState:
             print(f"[STATE][set_new_job] {new_job}")
         else:
             print(
-                f"[STATE][set_new_job] type={new_job.type}, x/y/z={new_job.target.x}/{new_job.target.y}/{new_job.target.z}, unit.number={job.unit.number}, "
+                f"[STATE][set_new_job] type={new_job.type}, x/y/z={new_job.target.x}/{new_job.target.y}/{new_job.target.z}, unit.number={new_job.unit.number}, "
             )
         return "OK"
 
@@ -101,6 +103,7 @@ class TamsJobState:
             and self.__state.jobStatus == CCSJobStatus.DONE
             and self.has_job()
         ):
+            print(f"[STATE][set_new_state] {self.__state=}")
             if self.__running_job:
                 if self.storage.process_job_done(self.__running_job):
                     self.__running_job = None

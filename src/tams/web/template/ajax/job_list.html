@@ -1,6 +1,6 @@
 <div class="card mb-3 text-white bg-secondary">
     <div class="card-header">Jobs</div>
-    <div style="height: 100%; 
+    <div style="height: 100%;
     font-family: 'Lucida Console', 'Courier New', monospace;
     background: #2c3034;
     font-size: 11px;
@@ -17,13 +17,24 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
+            {% if running is not none %}
+                   <tr >
+                       <td style="background-color: #0c4128;" >{{ running.type }}</td>
+                       <td style="background-color: #0c4128;" >{{ running.unit.number }}</td>
+                       <td style="background-color: #0c4128;" >{{ running.target.x }}</td>
+                       <td style="background-color: #0c4128;" >{{ running.target.y }}</td>
+                       <td style="background-color: #0c4128;" >{{ running.target.z }}</td>
+                   </tr>
+            {% endif %}
+            {% for p in pending %}
+                   <tr>
+                       <td>{{ p.type }}</td>
+                       <td>{{ p.unit.number }}</td>
+                       <td>{{ p.target.x }}</td>
+                       <td>{{ p.target.y }}</td>
+                       <td>{{ p.target.z }}</td>
+                   </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

@@ -23,21 +23,6 @@ let pos_x = 0
 let pos_y = 0
 let pos_z = 0
 
-function get_details() {
-    $.getJSON("/details", function (data) {
-        console.log("details", data)
-        if (data["features"].length !== 0) {
-            feature_list = $("#feature-list")
-            feature_list.empty()
-            for (id in data["features"]) {
-                type = data["features"][id].type
-                version = data["features"][id].version
-                feature_list.append($("<li></li>").text(type + " " + version))
-            }
-        }
-    })
-}
-
 function get_messages() {
     $.getJSON("/messages", function (data) {
         if (data["msg"].length !== 0) {
@@ -55,8 +40,10 @@ function get_messages() {
 }
 
 function get_metrics() {
-    $.getJSON("/metric", function (data) {
-        //console.log(data)
+    $.getJSON("/metric", function (indata) {
+        data = JSON.parse(indata)
+        console.log(data)
+
         if ("metrics" in data && data["metrics"].length !== 0) {
             //console.log(data["metrics"])
             for (id in data["metrics"]) {
@@ -94,34 +81,34 @@ function get_metrics() {
     })
 }
 
-function get_job() {
-    $.getJSON("/job", function (data) {
-        jobcard = $("#running-job")
-        //console.log("JOB:", data)
-        jobcard.empty()
-        if ($.isEmptyObject(data)) {
-            jobcard.append("<ul>" +
-                "<li><b>type:</b> </li>" +
-                "<li><b>x:</b>  </li>" +
-                "<li><b>y:</b>  </li>" +
-                "<li><b>z:</b>  </li>" +
-                "<li><b>unit nr:</b>  </li>" +
-                "<li><b>unit id:</b>  </li>" +
-                "<li><b>unit type:</b> </li>" +
-                "</ul>")
-        } else {
-            jobcard.append("<ul>" +
-                "<li><b>type:</b> " + data.type + "</li>" +
-                "<li><b>x:</b> " + data.target.x + "</li>" +
-                "<li><b>y:</b> " + data.target.y + "</li>" +
-                "<li><b>z:</b> " + data.target.z + "</li>" +
-                "<li><b>unit nr:</b> " + data.unit.number + "</li>" +
-                "<li><b>unit id:</b> " + data.unit.unit_id + "</li>" +
-                "<li><b>unit type:</b> " + data.unit.type + "</li>" +
-                "</ul>")
-        }
-    })
-}
+//function get_job() {
+//    $.getJSON("/job", function (data) {
+//        jobcard = $("#running-job")
+//        //console.log("JOB:", data)
+//        jobcard.empty()
+//        if ($.isEmptyObject(data)) {
+//            jobcard.append("<ul>" +
+//                "<li><b>type:</b> </li>" +
+//                "<li><b>x:</b>  </li>" +
+//                "<li><b>y:</b>  </li>" +
+//                "<li><b>z:</b>  </li>" +
+//                "<li><b>unit nr:</b>  </li>" +
+//                "<li><b>unit id:</b>  </li>" +
+//                "<li><b>unit type:</b> </li>" +
+//                "</ul>")
+//        } else {
+//            jobcard.append("<ul>" +
+//                "<li><b>type:</b> " + data.type + "</li>" +
+//                "<li><b>x:</b> " + data.target.x + "</li>" +
+//                "<li><b>y:</b> " + data.target.y + "</li>" +
+//                "<li><b>z:</b> " + data.target.z + "</li>" +
+//                "<li><b>unit nr:</b> " + data.unit.number + "</li>" +
+//                "<li><b>unit id:</b> " + data.unit.unit_id + "</li>" +
+//                "<li><b>unit type:</b> " + data.unit.type + "</li>" +
+//                "</ul>")
+//        }
+//    })
+//}
 
 
 function update_stack_table() {
@@ -141,7 +128,6 @@ function update_stack_table() {
                     "z": pos_z,
                 }
                 console.log(data);
-                setpos_event.data = data
                 $.ajax({
                     url: "stacks/setpos/" + stack_name,
                     type: "POST",
@@ -150,11 +136,11 @@ function update_stack_table() {
                     dataType: "json",
                     success: function (data) {
                         console.log(data)
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     },
                     error: function (data) {
                         console.log("failed")
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     }
                 })
 
@@ -169,11 +155,11 @@ function update_stack_table() {
                     dataType: "json",
                     success: function (data) {
                         console.log(data)
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     },
                     error: function (data) {
                         console.log("failed")
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     }
                 })
             });
@@ -193,15 +179,32 @@ function update_stack_table() {
                     dataType: "json",
                     success: function (data) {
                         console.log("OK")
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
+                        setInterval(function () {
+                            update_ui()
+                        }, 500);
                     },
                     error: function (data) {
                         console.log("failed")
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     }
                 })
             });
-            $('#move-container-button').on('click', function () {
+        }
+    });
+
+
+}
+
+function update_auto_job() {
+    $.ajax({
+        url: "ajax_auto_job",
+        type: "GET",
+        success: function (data) {
+            document.getElementById("auto_job").innerHTML = data;
+            $('.move-container-button').on('click', function (event) {
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 from = $("#move-container-from").children("option:selected").text()
                 to = $("#move-container-to").children("option:selected").text()
                 console.log(from)
@@ -214,27 +217,14 @@ function update_stack_table() {
                     dataType: "json",
                     success: function (data) {
                         console.log(data)
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     },
                     error: function (data) {
                         console.log("failed")
-                        document.dispatchEvent(update_ui_event);
+                        update_ui()
                     }
                 })
             });
-        }
-
-    });
-
-
-}
-
-function update_auto_job() {
-    $.ajax({
-        url: "ajax_auto_job",
-        type: "GET",
-        success: function (data) {
-            document.getElementById("auto_job").innerHTML = data;
         }
 
     });
@@ -269,20 +259,16 @@ function update_job_list() {
         success: function (data) {
             document.getElementById("job_list").innerHTML = data;
         }
-
     });
 }
 
-document.addEventListener("update_ui", function(e) {
+function update_ui() {
     update_job_list()
     update_stack_table()
     update_auto_job()
     update_job_status()
     update_crane_status()
-});
-
-var update_ui_event = new CustomEvent("update_ui", { "detail": "Example of an event" });
-var setpos_event = new CustomEvent("setpos", { "detail": "Example of an event" });
+}
 
 function send_job() {
     const unitform = $("#FormUnitSelect option:selected")
@@ -343,30 +329,24 @@ function cancel_job() {
     })
 }
 
+let active_mode = ""
+
 $(document).ready(function () {
 
     $.getJSON("/state", function (data) {
         console.log("state", data)
     })
 
-    get_details()
-    //get_container()
-    //get_stacks()
-    // ajax
-    document.dispatchEvent(update_ui_event);
-    document.dispatchEvent(setpos_event);
-
+    update_ui()
 
     setInterval(function () {
+        if (active_mode == "auto"){
+            update_stack_table()
+        }
         get_messages()
-    }, 500);
-
-    setInterval(function () {
-        get_job()
-        //get_container()
-        //get_stacks()
+        update_job_list()
         get_metrics()
-    }, 1000);
+    }, 500);
 
     $(".not-clickable").on("click", false);
 
@@ -376,6 +356,8 @@ $(document).ready(function () {
     checkbox_modus.on('change', function () {
         $(".checkbox_modus").not(this).prop('checked', false)
         $(this).prop('checked', true)
+        active_mode = this.id.split("_")[2]
+        console.log(active_mode)
         $.ajax({
             url: "mode",
             data: this.id.split("_")[2],
@@ -383,8 +365,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 console.log(data)
-                document.dispatchEvent(update_ui_event);
-                //update_ui()
+                update_ui()
             },
             error: function (data) {
                 console.log(data)

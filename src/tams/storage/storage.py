@@ -18,10 +18,14 @@ class ContainerStack:
     container: List[CCSUnit] = field(default_factory=list)
     height: int = 3
 
+    @property
+    def count(self) -> int:
+        return sum([1 for x in self.container if not x.is_empty()])
+
 
 class TamsStorage:
     stacks: list[ContainerStack] = []
-    crane: Optional[CCSUnit] = None
+    crane: CCSUnit = CCSUnit.empty()
     stack_height = 2
 
     @property
@@ -48,7 +52,7 @@ class TamsStorage:
             while len(stack.container) < self.stack_height:
                 stack.container.append(CCSUnit.empty())
         self.crane = (
-            None if json_data["crane"] == "" else CCSUnit.from_dict(json_data["crane"])  # type: ignore[attr-defined]
+            CCSUnit.empty() if json_data["crane"] == "" else CCSUnit.from_dict(json_data["crane"])  # type: ignore[attr-defined]
         )
         self._fix_container_layer()
 
@@ -186,6 +190,7 @@ class TamsStorage:
             for ix in range(self.stack_height):
                 if stack.container[ix].is_empty():
                     stack.container[ix] = unit
+                    self.crane = CCSUnit.empty()
                     return True
             return False
 
