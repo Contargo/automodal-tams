@@ -1,0 +1,21 @@
+[Unit]
+Description=automodal-tams
+After=syslog.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/debauer/automodal-tams
+ExecStartPre=/usr/bin/git checkout export.json
+ExecStart=/home/debauer/.local/bin/poetry run sudo python src/tams/main.py -c 127.0.0.1
+Environment=PYTHONUNBUFFERED=1
+User=debauer
+Group=debauer
+
+SyslogIdentifier=automodal-tams
+StandardOutput=syslog
+StandardError=syslog
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
