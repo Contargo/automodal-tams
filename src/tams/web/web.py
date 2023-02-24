@@ -44,6 +44,10 @@ class Web:
         self.shutdown_event = Event()
         self.msgs = Messages()
         self.storage = storage
+
+        self._ajax_job_list_pending = []
+        self._ajax_job_list_running = []
+
         self.app = Flask(
             "tams web",
             root_path=getcwd(),
@@ -95,7 +99,8 @@ class Web:
             "/messages", "messages_get", self.messages_get, methods=["get"]
         )
         self.app.add_url_rule("/stacks", "stacks_get", self.stacks_get, methods=["get"])
-        self.app.add_url_rule("/mode", "mode", self.mode_post, methods=["post"])
+        self.app.add_url_rule("/mode", "mode_post", self.mode_post, methods=["post"])
+        self.app.add_url_rule("/mode", "mode_get", self.mode_get, methods=["get"])
         # self.app.add_url_rule(
         #    "/container", "container_get", self.container_get, methods=["get"]
         # )
@@ -165,11 +170,14 @@ class Web:
     def mode_post(self) -> Any:
         mode = request.data.decode()
         print(f"[WEB][mode_post] {mode}")
-        print(WebState.__members__.keys())
         if mode in WebState.__members__:
             self.mode = WebState(mode)
             return "OK", 200
         return "Invalid input", 405
+
+    def mode_get(self) -> Any:
+        print(f"[WEB][mode_get] {self.mode.value}")
+        return str(self.mode.value), 200
 
     def stacks_setpos_post(self, stack_name: str) -> Any:
         data = json.loads(request.get_data())
@@ -277,7 +285,9 @@ class Web:
         return render_template("ajax/job_status.html")
 
     def ajax_crane_status(self) -> Any:
-        return render_template("ajax/crane_status.html")
+        crane = self.storage.crane
+        print(self.storage.crane)
+        return render_template("ajax/crane_status.html", crane=crane)
 
     def ajax_auto_job(self) -> Any:
         stacks = self.storage.stacks
@@ -294,13 +304,19 @@ class Web:
             "ajax/stacks.html", partial=partial, container=container, stacks=stacks
         )
 
+
     def ajax_job_list(self) -> Any:
+
         pending = self.state.get_pending_jobs()
         running = self.state.get_running_job()
         pen = [x.unit.number for x in pending]
-        print(f"[WEB][ajax_job_list] pending {pen}")
+        if pen != self._ajax_job_list_pending:
+            print(f"[WEB][ajax_job_list] pending {pen}")
+            self._ajax_job_list_pending = pen
+
         if running:
-            print(f"[WEB][ajax_job_list] running {running.unit.number}")
-        else:
-            print(f"[WEB][ajax_job_list] running []")
+            running_output = running.unit.number
+            if self._ajax_job_list_running != running_output:
+                print(f"[WEB][ajax_job_list] running {running_output}")
+                self._ajax_job_list_running = running_output
         return render_template("ajax/job_list.html", pending=pending, running=running)

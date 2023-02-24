@@ -267,7 +267,6 @@ function update_ui() {
     update_stack_table()
     update_auto_job()
     update_job_status()
-    update_crane_status()
 }
 
 function send_job() {
@@ -346,13 +345,30 @@ $(document).ready(function () {
         get_messages()
         update_job_list()
         get_metrics()
+        update_crane_status()
     }, 500);
 
     $(".not-clickable").on("click", false);
 
     checkbox_modus = $(".checkbox_modus")
     checkbox_modus.prop("checked", false)
-    $("#checkbox_modus_init").prop("checked", true)
+    $.ajax({
+        url: "mode",
+        type: "GET",
+        success: function (data) {
+            $(".checkbox_modus").not(this).prop('checked', false)
+            if (data==="auto") {
+                $("#checkbox_modus_auto").prop("checked", true)
+            }else if (data==="pos") {
+                $("#checkbox_modus_pos").prop("checked", true)
+            }else if (data==="drop") {
+                $("#checkbox_modus_drop").prop("checked", true)
+            }else{
+                $("#checkbox_modus_init").prop("checked", true)
+            }
+        }
+    });
+
     checkbox_modus.on('change', function () {
         $(".checkbox_modus").not(this).prop('checked', false)
         $(this).prop('checked', true)
