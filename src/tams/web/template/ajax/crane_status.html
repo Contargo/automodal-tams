@@ -4,29 +4,20 @@
         PS Kran <br>
         Wörth am Rhein <br><br>
         <span id="crane-details-container">Container: </span><br><br>
-        Features:
-        <ul id="feature-list">
-            <li>alala</li>
-        </ul>
+        {% if crane.number != "" %}
+            <button
+                    data-stack-name="{{ stack }}"
+                    type="button"
+                    class="btn btn-small btn-primary disabled"
+                    style="font-size: 12px; width: 100%;">
+            {{ crane.number }}
+            </button>
+        {% else %}
+            <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
+            &ensp;
+            </button>
+        {% endif %}
     </div>
 </div>
 
-<div class="card mb-3 text-white bg-secondary ">
-    <div class="card-header">Crane Position</div>
-    <div class="card-body">
-        <table class="table table-dark">
-            <tbody>
-            <tr>
-                <td>Crane (x)</td>
-                <td>Katz (y)</td>
-                <td>Spreader (z)</td>
-            </tr>
-            <tr>
-                <td id="crane_position"></td>
-                <td id="katz_position"></td>
-                <td id="spreader_position"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+

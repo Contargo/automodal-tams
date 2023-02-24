@@ -38,13 +38,13 @@
                         <div class="form-check form-switch">
                             <input id="checkbox_modus_drop" class="form-check-input checkbox_modus" type="checkbox">
                             <label class="form-check-label">DROP</label>
-                        </div>                        
+                        </div>
                         <div class="form-check form-switch">
                             <input id="checkbox_modus_auto" class="form-check-input checkbox_modus checked" type="checkbox">
                             <label class="form-check-label">AUTO</label>
                         </div>
                 </div>
-            </div> 
+            </div>
             <div id="job_formular"></div>
 
             <div class="card mb-3 text-white bg-secondary">
@@ -59,10 +59,10 @@
                     {% include "partial_stacks.html" %}
                     <div id="auto_job"></div>
                     <div id="job_list"></div>
-                    
+
                     <div class="card mb-3 text-white bg-secondary" style="height: 370px">
                         <div class="card-header">Console</div>
-                        <div style="height: 100%; 
+                        <div style="height: 100%;
                         font-family: 'Lucida Console', 'Courier New', monospace;
                         background: #2c3034;
                         font-size: small;
@@ -74,7 +74,26 @@
                 <div class="col-3">
                     <div id="job_status"></div>
                     <div id="crane_status"></div>
-                    
+                    <div class="card mb-3 text-white bg-secondary ">
+                        <div class="card-header">Crane Position</div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tbody>
+                                <tr>
+                                    <td>Crane (x)</td>
+                                    <td>Katz (y)</td>
+                                    <td>Spreader (z)</td>
+                                </tr>
+                                <tr>
+                                    <td id="crane_position"></td>
+                                    <td id="katz_position"></td>
+                                    <td id="spreader_position"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
 
                 </div>
                 {% block content %}{% endblock %}
