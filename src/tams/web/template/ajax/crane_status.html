@@ -3,20 +3,49 @@
     <div class="card-body" id="crane-details">
         PS Kran <br>
         Wörth am Rhein <br><br>
-        <span id="crane-details-container">Container: </span><br><br>
-        {% if crane.number != "" %}
-            <button
-                    data-stack-name="{{ stack }}"
-                    type="button"
-                    class="btn btn-small btn-primary disabled"
-                    style="font-size: 12px; width: 100%;">
-            {{ crane.number }}
-            </button>
+        <span id="crane-details-container" >Container: </span><br><br>
+        <div>
+        {% if mode == "init" and False %}
+            <select class="stacks_init form-select form-select-sm" data-stack-name="crane" data-layer="1">
+                <option>-</option>
+                {% for item in container %}
+                    {% set ns = namespace(selected=false) %}
+                    {% if crane.number != "" %}
+                            {% if crane.number == item.number %}
+                                    selected
+                                    {% set ns.selected = true %}
+                            {% endif %}
+                    {% endif %}
+                    {{ ns.selected }}
+                    {% if ns.selected == true %}
+                            <option selected >{{ item.number }}</option>
+                    {% else %}
+                            <option>{{ item.number }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select><br>
         {% else %}
-            <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
-            &ensp;
-            </button>
+            {% if crane.number != "" %}
+                <button
+                        data-stack-name="{{ stack }}"
+                        type="button"
+                        class="btn btn-small btn-primary disabled hascontainer"
+                        style="font-size: 12px; width: 100%;">
+                {{ crane.number }}
+                </button>
+            {% else %}
+                <button type="button" class="btn btn-small btn-success disabled nocontainer" style="font-size: 12px; width: 100%;">
+                &ensp;
+                </button>
+            {% endif %}
         {% endif %}
+        </div>
+        <br>
+        <div>
+                <button type="button" class="btn btn-small btn-danger cancel" style="font-size: 15px; width: 100%;">
+                CANCEL ALL
+                </button>
+        </div>
     </div>
 </div>
 

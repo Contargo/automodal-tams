@@ -72,6 +72,8 @@ class CCS:
             if self.state.cancel_job:
                 if self.send_cancel():
                     self.state.cancel_job = False
+                    self.state.clear_pending_jobs()
+                    self.state.clear_running_job()
             try:
                 self.get_details()
                 if not self.state.has_job() and self.state.has_pending_jobs():
@@ -133,16 +135,18 @@ class CCS:
 
     def send_job(self) -> None:
         data = self.state.get_new_job_as_json()
+        new_job = self.state.get_new_job()
         if data == "{}":
             if self.verbose:
                 print(f"[CCS][send_job] {self.state=}")
             # self.state.reject_new_job()
             self.messages.add_error_msg(title="CCS send_job", text="job is empty")
             return
-        print(data)
+        print(f"[CCS][send_job]: {data=}")
         ret = requests.post(f"{self.ccs_url}/job", data=data)
         if self.verbose:
             print(f"[CCS][send_job]: {self.state.get_new_job_as_json()=}")
+        self.messages.add_msg(title="CCS send_job", text=f"{new_job.type} {new_job.unit.number}")
         print(f"[CCS][send_job]: {ret=}")
 
         if ret.text == "OK" or ret.status_code == 200:

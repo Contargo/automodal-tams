@@ -51,6 +51,11 @@ class TamsJobState:
             return str(self.__pending_jobs[0].to_json())  # type: ignore[attr-defined]
         return "{}"
 
+    def get_new_job(self) -> CCSJob | None:
+        if self.has_pending_jobs():
+            return self.__pending_jobs[0]
+        return None
+
     def get_pending_jobs_as_json(self) -> str:
         if self.has_pending_jobs():
             json = "["

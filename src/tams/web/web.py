@@ -68,13 +68,13 @@ class Web:
 
     def add_endpoints(self) -> None:
         self.app.add_url_rule("/", "frontend", self.frontend, methods=["get"])
-        #self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
+        # self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
         #        self.app.add_url_rule("/cancel-job", "cancel_job_post", self.cancel_job_post, methods=["post"])
-        #self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
-        #self.app.add_url_rule(
+        # self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
+        # self.app.add_url_rule(
         #    "/jobs_pending", "jobs_pending", self.jobs_pending, methods=["get"]
-        #)
-        #self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
+        # )
+        # self.app.add_url_rule("/job_state", "job_get", self.job_get, methods=["get"])
         self.app.add_url_rule(
             "/job_cancel", "job_cancel", self.job_cancel, methods=["post"]
         )
@@ -153,6 +153,10 @@ class Web:
             "/ajax_job_list", "ajax_job_list", self.ajax_job_list, methods=["get"]
         )
 
+    def verbose_print(self, text: str):
+        if self.verbose:
+            print(text)
+
     def rest(self) -> None:
         self.app.run(host="0.0.0.0", port=7000)
 
@@ -160,8 +164,7 @@ class Web:
         self.shutdown_event.set()
 
     def frontend(self) -> Any:
-        if self.verbose:
-            print(self.storage.get_stacks_as_json())
+        self.verbose_print(self.storage.get_stacks_as_json())
         return render_template("index.html", active_link="/")
 
     def stacks_get(self) -> Any:
@@ -176,7 +179,7 @@ class Web:
         return "Invalid input", 405
 
     def mode_get(self) -> Any:
-        print(f"[WEB][mode_get] {self.mode.value}")
+        self.verbose_print(f"[WEB][mode_get] {self.mode.value}")
         return str(self.mode.value), 200
 
     def stacks_setpos_post(self, stack_name: str) -> Any:
@@ -190,7 +193,12 @@ class Web:
     def stacks_drop_container(self, stack_name: str, layer: int) -> Any:
         print(f"[WEB][stacks_drop_container] {stack_name=} {layer=}")
         job = CCSJob()
-        job.target = self.storage.get_stack_by_name(stack_name).coordinates
+        stack = self.storage.get_stack_by_name(stack_name)
+        container = stack.container[layer]
+        self.storage.crane = container
+        self.storage.replace_container(new=CCSUnit.empty(), old=container)
+        job.unit = container
+        job.target = stack.coordinates
         job.type = CCSJobType.DROP
         self.state.add_new_job(job)
 
@@ -230,31 +238,31 @@ class Web:
     # def container_get(self) -> Any:
     #    return self.storage.get_container_as_json()
 
-#    def job_post(self) -> Any:
-#        job_json = str(request.json).replace("'", '"')
-#        job_json = job_json.replace("False", "false")
-#        if self.verbose:
-#            print(f"[WEB][job_post] {job_json=}")
-#        ret = self.state.add_new_job(job_json)
-#        if ret == "invalid":
-#            self.msgs.add_error_msg("WEB job_post", "invalid")
-#            return "Invalid input", 405
-#        if ret == "has job":
-#            self.msgs.add_error_msg("WEB job_post", "has job")
-#            return "has job", 409
-#        if ret == "OK":
-#            self.msgs.add_msg("WEB job_post", "ok")
-#            return "OK", 200
-#        self.msgs.add_error_msg("WEB job_post", "unknown error")
-#        return "unknown error", 500
+    #    def job_post(self) -> Any:
+    #        job_json = str(request.json).replace("'", '"')
+    #        job_json = job_json.replace("False", "false")
+    #        if self.verbose:
+    #            print(f"[WEB][job_post] {job_json=}")
+    #        ret = self.state.add_new_job(job_json)
+    #        if ret == "invalid":
+    #            self.msgs.add_error_msg("WEB job_post", "invalid")
+    #            return "Invalid input", 405
+    #        if ret == "has job":
+    #            self.msgs.add_error_msg("WEB job_post", "has job")
+    #            return "has job", 409
+    #        if ret == "OK":
+    #            self.msgs.add_msg("WEB job_post", "ok")
+    #            return "OK", 200
+    #        self.msgs.add_error_msg("WEB job_post", "unknown error")
+    #        return "unknown error", 500
 
-#    def jobs_pending(self) -> Any:
-#        return self.state.get_pending_jobs_as_json(), 200
+    #    def jobs_pending(self) -> Any:
+    #        return self.state.get_pending_jobs_as_json(), 200
 
-#    def job_get(self) -> Any:
-#        if self.state.has_job():
-#            return self.state.get_job_as_json(), 200
-#        return {}, 200
+    #    def job_get(self) -> Any:
+    #        if self.state.has_job():
+    #            return self.state.get_job_as_json(), 200
+    #        return {}, 200
 
     def job_cancel(self) -> Any:
         self.state.cancel_job = True
@@ -286,8 +294,9 @@ class Web:
 
     def ajax_crane_status(self) -> Any:
         crane = self.storage.crane
-        print(self.storage.crane)
-        return render_template("ajax/crane_status.html", crane=crane)
+        self.verbose_print(f"[WEB][ajax_crane_status] {self.storage.crane}")
+        container = self.storage.container
+        return render_template("ajax/crane_status.html", crane=crane, container=container, mode=self.mode.name)
 
     def ajax_auto_job(self) -> Any:
         stacks = self.storage.stacks
@@ -300,10 +309,15 @@ class Web:
         stacks = self.storage.stacks
         container = self.storage.container
         partial = f"ajax/partial_stacks_{self.mode.name}.html"
-        return render_template(
-            "ajax/stacks.html", partial=partial, container=container, stacks=stacks
-        )
-
+        if self.storage.force_ui_update:
+            self.storage.force_ui_update = False
+            return render_template(
+                "ajax/stacks.html", partial=partial, container=container, stacks=stacks
+            ), 299
+        else:
+            return render_template(
+                "ajax/stacks.html", partial=partial, container=container, stacks=stacks
+            ), 200
 
     def ajax_job_list(self) -> Any:
 

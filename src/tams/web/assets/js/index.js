@@ -110,121 +110,131 @@ function get_metrics() {
 //    })
 //}
 
+table_data = ""
 
 function update_stack_table() {
     $.ajax({
         url: "ajax_stack_table",
         type: "GET",
-        success: function (data) {
-            document.getElementById("stack_table").innerHTML = data;
-            $(".set-pos").on('click', function (event) {
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                stack_name = $(this).attr("data-stack-name");
-                console.log(stack_name);
-                data = {
-                    "x": pos_x,
-                    "y": pos_y,
-                    "z": pos_z,
-                }
-                console.log(data);
-                $.ajax({
-                    url: "stacks/setpos/" + stack_name,
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log(data)
-                        update_ui()
-                    },
-                    error: function (data) {
-                        console.log("failed")
-                        update_ui()
+        success: function (data, text_status, return_code) {
+            console.log("return code " + return_code.status)
+            if(table_data !== data || return_code.status === 299){
+                table_data = data
+                document.getElementById("stack_table").innerHTML = data;
+                $(".set-pos").on('click', function (event) {
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    stack_name = $(this).attr("data-stack-name");
+                    console.log(stack_name);
+                    data = {
+                        "x": pos_x,
+                        "y": pos_y,
+                        "z": pos_z,
                     }
-                })
-
-            });
-            $(".drop-container").on('click', function (event) {
-                stack_name = $(this).attr("data-stack-name");
-                stack_layer= $(this).attr("data-stack-layer");
-                $.ajax({
-                    url: "stacks/drop/" + stack_name + "/" + stack_layer,
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log(data)
-                        update_ui()
-                    },
-                    error: function (data) {
-                        console.log("failed")
-                        update_ui()
-                    }
-                })
-            });
-            $('.stacks_init').on('change', function (event) {
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                stack_name = $(this).attr("data-stack-name");
-                layer = $(this).attr("data-layer");
-                container = $(this).children("option:selected").text().replace(" ","_")
-                url = "stacks/container/" + layer + "/" + stack_name + "/" + container
-                console.log("url: " + url)
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log("OK")
-                        update_ui()
-                        setInterval(function () {
+                    console.log(data);
+                    $.ajax({
+                        url: "stacks/setpos/" + stack_name,
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data)
                             update_ui()
-                        }, 500);
-                    },
-                    error: function (data) {
-                        console.log("failed")
-                        update_ui()
-                    }
-                })
-            });
+                        },
+                        error: function (data) {
+                            console.log("failed")
+                            update_ui()
+                        }
+                    })
+
+                });
+                $(".drop-container").on('click', function (event) {
+                    stack_name = $(this).attr("data-stack-name");
+                    stack_layer= $(this).attr("data-stack-layer");
+                    $.ajax({
+                        url: "stacks/drop/" + stack_name + "/" + stack_layer,
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data)
+                            update_ui()
+                        },
+                        error: function (data) {
+                            console.log("failed")
+                            update_ui()
+                        }
+                    })
+                });
+                $('.stacks_init').on('change', function (event) {
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    stack_name = $(this).attr("data-stack-name");
+                    layer = $(this).attr("data-layer");
+                    container = $(this).children("option:selected").text().replace(" ","_")
+                    url = "stacks/container/" + layer + "/" + stack_name + "/" + container
+                    console.log("url: " + url)
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log("OK")
+                            update_ui()
+                            setInterval(function () {
+                                update_ui()
+                            }, 500);
+                        },
+                        error: function (data) {
+                            console.log("failed")
+                            update_ui()
+                        }
+                    })
+                });
+            }
         }
     });
 
 
 }
 
+auto_job_data = ""
+
 function update_auto_job() {
     $.ajax({
         url: "ajax_auto_job",
         type: "GET",
         success: function (data) {
-            document.getElementById("auto_job").innerHTML = data;
-            $('.move-container-button').on('click', function (event) {
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                from = $("#move-container-from").children("option:selected").text()
-                to = $("#move-container-to").children("option:selected").text()
-                console.log(from)
-                console.log(to)
-                $.ajax({
-                    url: "container/generate_move/" + from + "/" + to,
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log(data)
-                        update_ui()
-                    },
-                    error: function (data) {
-                        console.log("failed")
-                        update_ui()
-                    }
-                })
-            });
+            if(auto_job_data !== data) {
+                auto_job_data = data
+                document.getElementById("auto_job").innerHTML = data;
+                $('.move-container-button').on('click', function (event) {
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    from = $("#move-container-from").children("option:selected").text()
+                    to = $("#move-container-to").children("option:selected").text()
+                    console.log(from)
+                    console.log(to)
+                    $.ajax({
+                        url: "container/generate_move/" + from + "/" + to,
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data)
+                            update_ui()
+                        },
+                        error: function (data) {
+                            console.log("failed")
+                            update_ui()
+                        }
+                    })
+                });
+            }
         }
 
     });
@@ -241,15 +251,30 @@ function update_job_status() {
     });
 }
 
+
+crane_status_data = ""
 function update_crane_status() {
     $.ajax({
         url: "ajax_crane_status",
         type: "GET",
         success: function (data) {
-            document.getElementById("crane_status").innerHTML = data;
+            if(crane_status_data !== data){
+                crane_status_data = data
+                document.getElementById("crane_status").innerHTML = data;
+                $(".cancel").on("click", cancel_job);
+            }
         }
 
     });
+}
+
+function update_container_table_with_move_select(){
+    from = $("#move-container-from").children("option:selected").text()
+    to = $("#move-container-to").children("option:selected").text()
+    $(".hascontainer").removeClass('btn-warning').addClass('btn-primary')
+    $(".nocontainer").removeClass('btn-warning').addClass('btn-secondary')
+    $("#" + from + ' .hascontainer:first').removeClass("btn-primary").addClass('btn-warning')
+    $("#" + to + ' .nocontainer:last').removeClass("btn-secondary").addClass('btn-warning')
 }
 
 function update_job_list() {
@@ -262,12 +287,7 @@ function update_job_list() {
     });
 }
 
-function update_ui() {
-    update_job_list()
-    update_stack_table()
-    update_auto_job()
-    update_job_status()
-}
+
 
 function send_job() {
     const unitform = $("#FormUnitSelect option:selected")
@@ -316,6 +336,38 @@ function send_job() {
     })
 }
 
+function update_mode_switchs() {
+    $.ajax({
+        url: "mode",
+        type: "GET",
+        success: function (data) {
+            active_mode = data
+            $(".checkbox_modus").not(this).prop('checked', false)
+            if (data === "auto") {
+                $("#checkbox_modus_auto").prop("checked", true)
+            } else if (data === "pos") {
+                $("#checkbox_modus_pos").prop("checked", true)
+            } else if (data === "drop") {
+                $("#checkbox_modus_drop").prop("checked", true)
+            } else {
+                $("#checkbox_modus_init").prop("checked", true)
+            }
+        }
+    });
+}
+
+function update_ui() {
+    update_job_list()
+    update_crane_status() // must be placed before update_stack_table
+    update_stack_table()
+    update_auto_job()
+    update_job_status()
+    update_mode_switchs()
+    if (active_mode === "auto"){
+            update_container_table_with_move_select()
+    }
+}
+
 function cancel_job() {
     $.ajax({
         url: "job_cancel",
@@ -336,38 +388,21 @@ $(document).ready(function () {
         console.log("state", data)
     })
 
-    update_ui()
+
 
     setInterval(function () {
-        if (active_mode == "auto"){
-            update_stack_table()
-        }
         get_messages()
-        update_job_list()
         get_metrics()
-        update_crane_status()
+        update_ui()
     }, 500);
 
     $(".not-clickable").on("click", false);
 
+
+
     checkbox_modus = $(".checkbox_modus")
     checkbox_modus.prop("checked", false)
-    $.ajax({
-        url: "mode",
-        type: "GET",
-        success: function (data) {
-            $(".checkbox_modus").not(this).prop('checked', false)
-            if (data==="auto") {
-                $("#checkbox_modus_auto").prop("checked", true)
-            }else if (data==="pos") {
-                $("#checkbox_modus_pos").prop("checked", true)
-            }else if (data==="drop") {
-                $("#checkbox_modus_drop").prop("checked", true)
-            }else{
-                $("#checkbox_modus_init").prop("checked", true)
-            }
-        }
-    });
+
 
     checkbox_modus.on('change', function () {
         $(".checkbox_modus").not(this).prop('checked', false)

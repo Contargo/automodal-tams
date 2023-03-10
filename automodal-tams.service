@@ -4,12 +4,12 @@ After=syslog.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/debauer/automodal-tams
+WorkingDirectory=/home/automodal-tams/automodal-tams
 ExecStartPre=/usr/bin/git checkout export.json
-ExecStart=/home/debauer/.local/bin/poetry run sudo python src/tams/main.py -c 127.0.0.1
+ExecStart=/home/automodal-tams/.local/bin/poetry run sudo python src/tams/main.py -c 127.0.0.1
 Environment=PYTHONUNBUFFERED=1
-User=debauer
-Group=debauer
+User=automodal-tams
+Group=automodal-tams
 
 SyslogIdentifier=automodal-tams
 StandardOutput=syslog

@@ -13,12 +13,12 @@
     {% if ns.container != "" %}
         <button data-stack-name="{{ stack }}"
                 type="button"
-                class="btn btn-small btn-primary disabled"
+                class="btn btn-small btn-primary disabled hascontainer"
                 style="font-size: 12px; width: 100%;">
         {{ ns.container }}
         </button>
     {% else %}
-        <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
+        <button type="button" class="btn btn-small btn-secondary disabled nocontainer" style="font-size: 12px; width: 100%;">
         &ensp;
         </button>
     {% endif %}
@@ -39,12 +39,12 @@
         <button
                 data-stack-name="{{ stack }}"
                 type="button"
-                class="btn btn-small btn-primary disabled"
+                class="btn btn-small btn-primary disabled hascontainer"
                 style="font-size: 12px; width: 100%;">
         {{ ns.container }}
         </button>
     {% else %}
-        <button type="button" class="btn btn-small btn-secondary disabled" style="font-size: 12px; width: 100%;">
+        <button type="button" class="btn btn-small btn-secondary disabled nocontainer" style="font-size: 12px; width: 100%;">
         &ensp;
         </button>
     {% endif %}

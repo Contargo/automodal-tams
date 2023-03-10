@@ -22,11 +22,17 @@ class ContainerStack:
     def count(self) -> int:
         return sum([1 for x in self.container if not x.is_empty()])
 
+    def get_top_container(self) -> CCSUnit:
+        if self.count == 0:
+            return CCSUnit() # empty slot
+        return self.container[self.count - 1]
+
 
 class TamsStorage:
     stacks: list[ContainerStack] = []
     crane: CCSUnit = CCSUnit.empty()
     stack_height = 2
+    force_ui_update = True
 
     @property
     def container(self) -> list[CCSUnit]:
@@ -54,7 +60,7 @@ class TamsStorage:
         self.crane = (
             CCSUnit.empty() if json_data["crane"] == "" else CCSUnit.from_dict(json_data["crane"])  # type: ignore[attr-defined]
         )
-        self._fix_container_layer()
+        self.fix_container_layer()
 
     def get_stack_by_name(self, name: str) -> ContainerStack | None:
         for item in self.stacks:
@@ -68,8 +74,11 @@ class TamsStorage:
         for stack in self.stacks:
             for item in stack.container:
                 if item.number == container_number:
-                    print(f"[STORAGE][get_container_by_name] found {item=}")
+                    print(f"[STORAGE][get_container_by_name] found in stack {item=}")
                     return item
+        if container_number == self.crane.number:
+            print(f"[STORAGE][get_container_by_name] found on crane {self.crane=}")
+            return self.crane
         print(f"[STORAGE][get_container_by_name] item not found {container_number=}")
         return None
 
@@ -117,7 +126,7 @@ class TamsStorage:
             return
         print(f"[STORAGE][_switch_container] FAILED {c1_found=} '{c2_found=}'")
 
-    def _fix_container_layer(self) -> None:
+    def fix_container_layer(self) -> None:
         # fix floating containers in stack
         for stack in self.stacks:
             for ix in range(self.stack_height - 1):
@@ -127,8 +136,13 @@ class TamsStorage:
                 ):
                     stack.container[ix] = stack.container[ix + 1]
                     stack.container[ix + 1] = CCSUnit.empty()
+                if (
+                    stack.container[ix].number
+                    == stack.container[ix + 1].number
+                ):
+                    stack.container[ix + 1] = CCSUnit.empty()
 
-    def _replace_container(self, new: CCSUnit, old: CCSUnit) -> None:
+    def replace_container(self, new: CCSUnit, old: CCSUnit) -> None:
         # replaces a container in the stack with a new one.
         # old container will not be backuped!
         cnew = new
@@ -138,7 +152,7 @@ class TamsStorage:
                 index = stack.container.index(cold)
                 stack.container[index] = cnew
                 print(
-                    f"[STORAGE][_replace_container] OK {index=} '{cnew.number}', '{cold.number}'"
+                    f"[STORAGE][replace_container] OK {index=} '{cnew.number}', '{cold.number}'"
                 )
 
             except ValueError:
@@ -147,23 +161,41 @@ class TamsStorage:
     def set_container_stack(
         self, layer: int, stack_name: str, container_number: str
     ) -> None:
-        new_stack = self.get_stack_by_name(stack_name)
         new_container = self.get_container_by_name(container_number)
-        if new_stack and new_container is not None:
-            if not new_stack.container[layer - 1].is_empty():
-                print(
-                    f"[STORAGE][set_container_stack] new slot not empty, switch container"
-                )
-                old_container = new_stack.container[layer - 1]
-                self._switch_container(old_container, new_container)
-            else:
-                print(
-                    f"[STORAGE][set_container_stack] new slot is empty, move container"
-                )
-                self._replace_container(new=CCSUnit.empty(), old=new_container)
-                new_stack.container[layer - 1] = new_container
-            self._fix_container_layer()
+        if stack_name == "crane":
+            old_container = self.crane
+            for stack in self.stacks:
+                for index, container in enumerate(stack.container):
+                    if container.number == new_container.number:
+                        stack.container[index] = old_container
+            self.crane = new_container
             return
+        else:
+            new_stack = self.get_stack_by_name(stack_name)
+            if new_container in new_stack.container:
+                print(
+                    f"[STORAGE][set_container_stack] container in same stack"
+                )
+                self.force_ui_update = True
+                return
+            if new_stack and new_container is not None:
+                if not new_stack.container[layer - 1].is_empty():
+                    print(
+                        f"[STORAGE][set_container_stack] new slot not empty, switch container"
+                    )
+                    old_container = new_stack.container[layer - 1]
+                    self._switch_container(old_container, new_container)
+                elif new_container.number == self.crane.number:
+                    self.crane = CCSUnit.empty()
+                    new_stack.container[layer - 1] = new_container
+                else:
+                    print(
+                        f"[STORAGE][set_container_stack] new slot is empty, move container"
+                    )
+                    self.replace_container(new=CCSUnit.empty(), old=new_container)
+                    new_stack.container[layer - 1] = new_container
+                self.fix_container_layer()
+                return
         print(
             f"[STORAGE][set_container_stack] failed {layer=} {stack_name=} {container_number=}"
         )
@@ -200,7 +232,7 @@ class TamsStorage:
                 print("[STORAGE][container_moved]: pick but crane has unit")
                 return False
                 # DARF NICHT SEIN
-            self._replace_container(new=CCSUnit.empty(), old=unit)
+            self.replace_container(new=CCSUnit.empty(), old=unit)
             self.crane = unit
             return True
 
