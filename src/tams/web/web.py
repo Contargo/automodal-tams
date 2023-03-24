@@ -1,4 +1,5 @@
 import json
+from copy import copy
 from enum import Enum
 from os import getcwd
 from pathlib import Path
@@ -214,7 +215,7 @@ class Web:
     def __add_new_job(self, stack_name: str, job_type: CCSJobType, container: CCSUnit) -> None:
         job = CCSJob()
         stack = self.storage.get_stack_by_name(stack_name)
-        job.target = stack.coordinates
+        job.target = copy(stack.coordinates)
         if job_type == CCSJobType.DROP:
             job.target.z = job.target.z + 2591 * stack.count
         if job_type == CCSJobType.PICK:
