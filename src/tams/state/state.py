@@ -93,7 +93,7 @@ class TamsJobState:
             print(f"[STATE][set_new_job] {new_job}")
         else:
             print(
-                f"[STATE][set_new_job] type={new_job.type}, x/y/z={new_job.target.x}/{new_job.target.y}/{new_job.target.z}, unit.number={new_job.unit.number}, "
+                f"[STATE][set_new_job] type={new_job.type}, x/y/z={new_job.target.x}/{new_job.target.y}/{new_job.target.z}, bay/row/tier={new_job.target_logical.bay}/{new_job.target_logical.row}/{new_job.target_logical.tier}, unit.number={new_job.unit.number}, "
             )
         return "OK"
 

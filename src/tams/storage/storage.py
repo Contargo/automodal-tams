@@ -7,7 +7,7 @@ from typing import Any, List, Optional
 from dataclasses_json import dataclass_json
 
 from tams.ccs.enums import CCSJobType
-from tams.ccs.types import CCSCoordinates, CCSJob, CCSUnit
+from tams.ccs.types import CCSCoordinates, CCSJob, CCSUnit, CCSLogicalCoordinates
 
 
 @dataclass_json
@@ -15,6 +15,7 @@ from tams.ccs.types import CCSCoordinates, CCSJob, CCSUnit
 class ContainerStack:
     name: str
     coordinates: CCSCoordinates = field(default_factory=CCSCoordinates)
+    logical_coordinates: CCSLogicalCoordinates = field(default_factory=CCSLogicalCoordinates)
     container: List[CCSUnit] = field(default_factory=list)
     height: int = 3
 

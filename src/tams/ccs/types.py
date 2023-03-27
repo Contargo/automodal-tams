@@ -60,6 +60,14 @@ class CCSCoordinates:
     y: int = 2
     z: int = 3
 
+@dataclass_json
+@dataclass
+class CCSLogicalCoordinates:
+    # in mm
+    bay: int = 1
+    row: int = 2
+    tier: int = 3
+
 
 @dataclass_json
 @dataclass
@@ -67,6 +75,7 @@ class CCSJob:
     metadata: CCSEvent = field(default_factory=CCSEvent)
     type: str = CCSJobType.MOVE
     target: CCSCoordinates = field(default_factory=CCSCoordinates)
+    target_logical: CCSLogicalCoordinates = field(default_factory=CCSLogicalCoordinates)
     unit: CCSUnit = field(default_factory=CCSUnit)
 
 
