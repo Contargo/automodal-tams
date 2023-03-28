@@ -69,6 +69,7 @@ class Web:
 
     def add_endpoints(self) -> None:
         self.app.add_url_rule("/", "frontend", self.frontend, methods=["get"])
+        self.app.add_url_rule("/dashboard", "dashboard", self.dashboard, methods=["get"])
         # self.app.add_url_rule("/job", "job_post", self.job_post, methods=["post"])
         #        self.app.add_url_rule("/cancel-job", "cancel_job_post", self.cancel_job_post, methods=["post"])
         # self.app.add_url_rule("/job", "job_get", self.job_get, methods=["get"])
@@ -167,6 +168,11 @@ class Web:
     def frontend(self) -> Any:
         self.verbose_print(self.storage.get_stacks_as_json())
         return render_template("index.html", active_link="/")
+
+
+    def dashboard(self) -> Any:
+        self.verbose_print(self.storage.get_stacks_as_json())
+        return render_template("dashboard.html", active_link="/")
 
     def stacks_get(self) -> Any:
         return self.storage.get_stacks_as_json()
