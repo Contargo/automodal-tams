@@ -219,10 +219,11 @@ class Web:
         job.target = copy(stack.coordinates)
         job.target_logical = copy(stack.logical_coordinates)
         print(f"[WEB][__add_new_job] {job_type} {job.target.z=}, {stack.count=}")
+        job.target_logical.tier = stack.count
         if job_type == CCSJobType.DROP:
-            job.target_logical.tier = stack.count
+            job.target_logical.tier = stack.count + 1
         if job_type == CCSJobType.PICK:
-            job.target_logical.tier = stack.count - 1
+            job.target_logical.tier = stack.count
         job.target.z = job.target.z + 2591 * job.target_logical.tier
         job.type = job_type
         job.unit = container
