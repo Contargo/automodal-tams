@@ -199,16 +199,11 @@ class Web:
 
     def stacks_drop_container(self, stack_name: str, layer: int) -> Any:
         print(f"[WEB][stacks_drop_container] {stack_name=} {layer=}")
-        job = CCSJob()
         stack = self.storage.get_stack_by_name(stack_name)
         container = stack.container[layer]
         self.storage.crane = container
         self.storage.replace_container(new=CCSUnit.empty(), old=container)
-        job.unit = container
-        job.target = stack.coordinates
-        job.type = CCSJobType.DROP
-        self.state.add_new_job(job)
-
+        self.__add_new_job(stack_name, CCSJobType.DROP, container)
         return "OK", 200
 
     def stacks_container_update(
